@@ -1,0 +1,37 @@
+# docker-compose.override.yml
+# Overrides to skip Ollama and simplify stack
+
+services:
+  # Disable Ollama services (using Claude API instead)
+  ollama-cpu:
+    profiles:
+      - disabled
+  ollama-gpu:
+    profiles:
+      - disabled
+  ollama-gpu-amd:
+    profiles:
+      - disabled
+  ollama-pull-llama-cpu:
+    profiles:
+      - disabled
+  ollama-pull-llama-gpu:
+    profiles:
+      - disabled
+  ollama-pull-llama-gpu-amd:
+    profiles:
+      - disabled
+
+  # Make n8n-import a no-op (just exits successfully)
+  n8n-import:
+    entrypoint: /bin/sh
+    command: ["-c", "echo 'Skipping import' && exit 0"]
+    volumes: []
+
+  # Override n8n to only depend on postgres and the no-op import
+  n8n:
+    depends_on:
+      postgres:
+        condition: service_healthy
+      n8n-import:
+        condition: service_completed_successfully
