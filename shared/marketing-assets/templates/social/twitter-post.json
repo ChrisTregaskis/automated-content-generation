@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "platform": "twitter",
+    "post_type": "tweet",
+    "version": "1.0",
+    "created": "2024-01-15",
+    "description": "Twitter/X post template for Bentley content generation"
+  },
+  "template": {
+    "structure": [
+      {
+        "element": "hook",
+        "source": "headlines",
+        "required": true,
+        "description": "Punchy opening statement"
+      },
+      {
+        "element": "body",
+        "source": "body_copy",
+        "required": true,
+        "preferred_length": ["short"],
+        "description": "Concise supporting content",
+        "truncation_allowed": true
+      },
+      {
+        "element": "cta",
+        "source": "ctas",
+        "required": false,
+        "preferred_intent": ["awareness"],
+        "description": "Optional brief call to action"
+      },
+      {
+        "element": "hashtags",
+        "source": "generated",
+        "count": 2,
+        "required": true,
+        "description": "Minimal, high-impact hashtags"
+      }
+    ],
+    "constraints": {
+      "max_characters": 280,
+      "optimal_characters": 200,
+      "hashtag_placement": "end",
+      "line_breaks_before_hashtags": 2,
+      "avoid_exclamation_marks": true,
+      "spelling": "british",
+      "brevity_priority": true
+    },
+    "hashtag_pool": [
+      "#Bentley",
+      "#BentleyMotors",
+      "#ContinentalGT",
+      "#FlyingSpur",
+      "#Bentayga",
+      "#GrandTouring",
+      "#Handcrafted",
+      "#BritishLuxury"
+    ],
+    "formatting": {
+      "headline_style": "integrated_or_standalone",
+      "body_separator": "\n\n",
+      "cta_separator": " ",
+      "hashtag_separator": " ",
+      "condense_when_needed": true
+    },
+    "content_guidance": {
+      "approach": "economy_of_language",
+      "priorities": [
+        "every word must earn its place",
+        "punchy single statements work well",
+        "heritage moments and quotes are effective",
+        "link to deeper content when appropriate"
+      ],
+      "truncation_strategies": [
+        "use headline alone with hashtags",
+        "extract single impactful sentence from body",
+        "combine headline with CTA only"
+      ]
+    },
+    "example_outputs": [
+      {
+        "type": "headline_focus",
+        "text": "Handcrafted in Crewe.\n\nEvery detail shaped by hands that have mastered their craft across generations.\n\n#Bentley #Handcrafted"
+      },
+      {
+        "type": "statement",
+        "text": "Sixty hours of hand-stitching. Fourteen hides considered for every one selected. This is the Bentley standard.\n\n#Bentley"
+      },
+      {
+        "type": "headline_cta",
+        "text": "Grand Touring, Perfected.\n\nDiscover your Bentley.\n\n#Bentley #GrandTouring"
+      }
+    ]
+  }
+}

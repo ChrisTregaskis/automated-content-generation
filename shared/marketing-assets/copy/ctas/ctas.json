@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-01-15",
+    "description": "Bentley CTA pool for social content generation"
+  },
+  "ctas": [
+    {
+      "id": "cta-001",
+      "text": "Discover Your Bentley",
+      "intent": "awareness",
+      "destination": "website",
+      "urgency": "low",
+      "character_count": 20
+    },
+    {
+      "id": "cta-002",
+      "text": "Explore the Collection",
+      "intent": "awareness",
+      "destination": "website",
+      "urgency": "low",
+      "character_count": 22
+    },
+    {
+      "id": "cta-003",
+      "text": "Begin Your Journey",
+      "intent": "awareness",
+      "destination": "website",
+      "urgency": "low",
+      "character_count": 18
+    },
+    {
+      "id": "cta-004",
+      "text": "Experience the Craftsmanship",
+      "intent": "consideration",
+      "destination": "website",
+      "urgency": "low",
+      "character_count": 28
+    },
+    {
+      "id": "cta-005",
+      "text": "Configure Your Vision",
+      "intent": "consideration",
+      "destination": "configurator",
+      "urgency": "medium",
+      "character_count": 21
+    },
+    {
+      "id": "cta-006",
+      "text": "Explore the Configurator",
+      "intent": "consideration",
+      "destination": "configurator",
+      "urgency": "medium",
+      "character_count": 24
+    },
+    {
+      "id": "cta-007",
+      "text": "Discover What Sets Us Apart",
+      "intent": "consideration",
+      "destination": "website",
+      "urgency": "low",
+      "character_count": 27
+    },
+    {
+      "id": "cta-008",
+      "text": "Request a Personal Consultation",
+      "intent": "conversion",
+      "destination": "dealership",
+      "urgency": "medium",
+      "character_count": 32
+    },
+    {
+      "id": "cta-009",
+      "text": "Book Your Private Viewing",
+      "intent": "conversion",
+      "destination": "dealership",
+      "urgency": "medium",
+      "character_count": 26
+    },
+    {
+      "id": "cta-010",
+      "text": "Arrange Your Test Drive",
+      "intent": "conversion",
+      "destination": "test-drive",
+      "urgency": "high",
+      "character_count": 24
+    }
+  ]
+}

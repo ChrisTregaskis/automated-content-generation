@@ -1,0 +1,129 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-01-15",
+    "description": "Bentley headline pool for social content generation"
+  },
+  "headlines": [
+    {
+      "id": "hl-001",
+      "text": "Handcrafted in Crewe",
+      "theme": "craftsmanship",
+      "tone": "informative",
+      "suggested_models": ["all"],
+      "character_count": 18
+    },
+    {
+      "id": "hl-002",
+      "text": "Every Stitch Tells a Story",
+      "theme": "craftsmanship",
+      "tone": "evocative",
+      "suggested_models": ["all"],
+      "character_count": 26
+    },
+    {
+      "id": "hl-003",
+      "text": "The Art of the Unseen",
+      "theme": "craftsmanship",
+      "tone": "evocative",
+      "suggested_models": ["all"],
+      "character_count": 21
+    },
+    {
+      "id": "hl-004",
+      "text": "Where Mastery Meets Material",
+      "theme": "craftsmanship",
+      "tone": "aspirational",
+      "suggested_models": ["continental-gt", "flying-spur"],
+      "character_count": 28
+    },
+    {
+      "id": "hl-005",
+      "text": "Effortless Power, Absolute Composure",
+      "theme": "performance",
+      "tone": "aspirational",
+      "suggested_models": ["continental-gt", "bentayga"],
+      "character_count": 36
+    },
+    {
+      "id": "hl-006",
+      "text": "Six Hundred Reasons to Arrive",
+      "theme": "performance",
+      "tone": "evocative",
+      "suggested_models": ["continental-gt"],
+      "character_count": 30
+    },
+    {
+      "id": "hl-007",
+      "text": "Grand Touring, Perfected",
+      "theme": "performance",
+      "tone": "aspirational",
+      "suggested_models": ["continental-gt", "flying-spur"],
+      "character_count": 24
+    },
+    {
+      "id": "hl-008",
+      "text": "A Century of Distinction",
+      "theme": "heritage",
+      "tone": "informative",
+      "suggested_models": ["all"],
+      "character_count": 24
+    },
+    {
+      "id": "hl-009",
+      "text": "Since 1919, Extraordinary",
+      "theme": "heritage",
+      "tone": "aspirational",
+      "suggested_models": ["all"],
+      "character_count": 25
+    },
+    {
+      "id": "hl-010",
+      "text": "Legacy in Motion",
+      "theme": "heritage",
+      "tone": "evocative",
+      "suggested_models": ["continental-gt", "flying-spur"],
+      "character_count": 16
+    },
+    {
+      "id": "hl-011",
+      "text": "Your Sanctuary Awaits",
+      "theme": "lifestyle",
+      "tone": "aspirational",
+      "suggested_models": ["flying-spur", "bentayga"],
+      "character_count": 21
+    },
+    {
+      "id": "hl-012",
+      "text": "Where Will You Venture Next",
+      "theme": "lifestyle",
+      "tone": "evocative",
+      "suggested_models": ["bentayga", "continental-gt"],
+      "character_count": 27
+    },
+    {
+      "id": "hl-013",
+      "text": "The Journey Is the Destination",
+      "theme": "lifestyle",
+      "tone": "evocative",
+      "suggested_models": ["all"],
+      "character_count": 30
+    },
+    {
+      "id": "hl-014",
+      "text": "Redefining Tomorrow",
+      "theme": "innovation",
+      "tone": "aspirational",
+      "suggested_models": ["all"],
+      "character_count": 19
+    },
+    {
+      "id": "hl-015",
+      "text": "Heritage Meets Horizon",
+      "theme": "innovation",
+      "tone": "evocative",
+      "suggested_models": ["all"],
+      "character_count": 22
+    }
+  ]
+}

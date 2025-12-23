@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "platform": "linkedin",
+    "post_type": "feed",
+    "version": "1.0",
+    "created": "2024-01-15",
+    "description": "LinkedIn feed post template for Bentley content generation"
+  },
+  "template": {
+    "structure": [
+      {
+        "element": "hook",
+        "source": "headlines",
+        "required": true,
+        "description": "Opening statement to capture professional attention"
+      },
+      {
+        "element": "body",
+        "source": "body_copy",
+        "required": true,
+        "preferred_length": ["medium", "long"],
+        "description": "Extended narrative with industry relevance"
+      },
+      {
+        "element": "cta",
+        "source": "ctas",
+        "required": true,
+        "preferred_intent": ["consideration", "awareness"],
+        "description": "Professional call to action"
+      },
+      {
+        "element": "hashtags",
+        "source": "generated",
+        "count": 4,
+        "required": true,
+        "description": "Industry and brand hashtags"
+      }
+    ],
+    "constraints": {
+      "max_characters": 3000,
+      "optimal_characters_min": 100,
+      "optimal_characters_max": 300,
+      "hashtag_placement": "end",
+      "line_breaks_before_hashtags": 2,
+      "avoid_exclamation_marks": true,
+      "spelling": "british",
+      "tone_emphasis": "professional"
+    },
+    "hashtag_pool": [
+      "#Bentley",
+      "#BentleyMotors",
+      "#LuxuryAutomotive",
+      "#AutomotiveIndustry",
+      "#BritishManufacturing",
+      "#Craftsmanship",
+      "#LuxuryBrands",
+      "#MadeInCrewe",
+      "#AutomotiveExcellence",
+      "#Sustainability",
+      "#ElectricVehicles",
+      "#FutureOfMobility",
+      "#Heritage",
+      "#Innovation"
+    ],
+    "formatting": {
+      "headline_style": "standalone_line",
+      "body_separator": "\n\n",
+      "cta_separator": "\n\n",
+      "hashtag_separator": " ",
+      "paragraph_breaks": true
+    },
+    "content_guidance": {
+      "themes_to_emphasise": [
+        "craftsmanship and manufacturing excellence",
+        "heritage and brand legacy",
+        "innovation and sustainability",
+        "industry leadership"
+      ],
+      "professional_angles": [
+        "behind-the-scenes manufacturing insights",
+        "skilled workforce and training",
+        "sustainability initiatives",
+        "technological innovation",
+        "brand heritage milestones"
+      ]
+    },
+    "example_output": "A Century of Distinction\n\nSince W.O. Bentley founded the company in 1919, our commitment has remained unchanged: to build the finest motor cars in the world. Over a century later, that promise endures in every vehicle that leaves Crewe. Four generations of craftsmen have refined techniques that cannot be taught—only inherited through years of dedication at the bench.\n\nThis is the standard we set for ourselves. This is the legacy we protect.\n\nDiscover what sets us apart.\n\n#Bentley #BritishManufacturing #Craftsmanship #LuxuryAutomotive"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "metadata": {
+    "platform": "instagram",
+    "post_type": "feed",
+    "version": "1.0",
+    "created": "2024-01-15",
+    "description": "Instagram feed post template for Bentley content generation"
+  },
+  "template": {
+    "structure": [
+      {
+        "element": "hook",
+        "source": "headlines",
+        "required": true,
+        "description": "Opening line to capture attention"
+      },
+      {
+        "element": "body",
+        "source": "body_copy",
+        "required": true,
+        "preferred_length": ["short", "medium"],
+        "description": "Main narrative content"
+      },
+      {
+        "element": "cta",
+        "source": "ctas",
+        "required": false,
+        "preferred_intent": ["awareness", "consideration"],
+        "description": "Optional call to action"
+      },
+      {
+        "element": "hashtags",
+        "source": "generated",
+        "count": 5,
+        "required": true,
+        "description": "Platform hashtags for discovery"
+      }
+    ],
+    "constraints": {
+      "max_characters": 2200,
+      "optimal_characters": 150,
+      "hashtag_placement": "end",
+      "line_breaks_before_hashtags": 2,
+      "avoid_exclamation_marks": true,
+      "spelling": "british"
+    },
+    "hashtag_pool": [
+      "#Bentley",
+      "#BentleyMotors",
+      "#ContinentalGT",
+      "#ContinentalGTC",
+      "#FlyingSpur",
+      "#Bentayga",
+      "#Mulliner",
+      "#LuxuryCars",
+      "#BritishLuxury",
+      "#GrandTouring",
+      "#Handcrafted",
+      "#ExtraordinaryJourneys",
+      "#MadeInCrewe",
+      "#LuxuryLifestyle",
+      "#Craftsmanship"
+    ],
+    "formatting": {
+      "headline_style": "standalone_line",
+      "body_separator": "\n\n",
+      "cta_separator": "\n\n",
+      "hashtag_separator": " "
+    },
+    "example_output": "Where Mastery Meets Material\n\nIn our Crewe atelier, skilled craftsmen hand-select each hide, inspecting for imperfections invisible to the untrained eye. Only the finest examples proceed to the cutting room.\n\nDiscover the craftsmanship.\n\n#Bentley #ContinentalGT #Handcrafted #BritishLuxury #Craftsmanship"
+  }
+}

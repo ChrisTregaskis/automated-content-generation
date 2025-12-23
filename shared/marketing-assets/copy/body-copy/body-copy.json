@@ -1,0 +1,81 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-01-15",
+    "description": "Bentley body copy pool for social content generation"
+  },
+  "body_copy": [
+    {
+      "id": "bc-001",
+      "text": "In our Crewe atelier, skilled craftsmen hand-select each hide, inspecting for imperfections invisible to the untrained eye. Only the finest examples proceed to the cutting room.",
+      "theme": "craftsmanship",
+      "length": "short",
+      "word_count": 30,
+      "suggested_models": ["all"],
+      "pairs_well_with_headlines": ["hl-001", "hl-002", "hl-004"]
+    },
+    {
+      "id": "bc-002",
+      "text": "Sixty hours of meticulous hand-stitching create a single Continental GT interior. Each stitch placed with precision, each seam aligned to the millimetre. This is the difference between manufacturing and artistry.",
+      "theme": "craftsmanship",
+      "length": "short",
+      "word_count": 35,
+      "suggested_models": ["continental-gt"],
+      "pairs_well_with_headlines": ["hl-002", "hl-003", "hl-004"]
+    },
+    {
+      "id": "bc-003",
+      "text": "The Continental GT delivers 600 brake horsepower with the composure of a gentleman's express. Effortless acceleration meets refined dynamics—power that whispers rather than shouts.",
+      "theme": "performance",
+      "length": "short",
+      "word_count": 28,
+      "suggested_models": ["continental-gt"],
+      "pairs_well_with_headlines": ["hl-005", "hl-006", "hl-007"]
+    },
+    {
+      "id": "bc-004",
+      "text": "Since W.O. Bentley founded the company in 1919, our commitment has remained unchanged: to build the finest motor cars in the world. Over a century later, that promise endures in every vehicle that leaves Crewe. Four generations of craftsmen have refined techniques that cannot be taught—only inherited through years of dedication at the bench.",
+      "theme": "heritage",
+      "length": "medium",
+      "word_count": 58,
+      "suggested_models": ["all"],
+      "pairs_well_with_headlines": ["hl-008", "hl-009", "hl-010"]
+    },
+    {
+      "id": "bc-005",
+      "text": "Settle into the Flying Spur's rear cabin and discover a private sanctuary designed around your wellbeing. Hand-stitched diamond quilting embraces you in uncompromising comfort, whilst the world beyond the acoustic glass fades to a distant murmur. Here, time moves at your pace. The journey becomes a destination in itself, each mile an opportunity for contemplation or connection.",
+      "theme": "lifestyle",
+      "length": "medium",
+      "word_count": 62,
+      "suggested_models": ["flying-spur"],
+      "pairs_well_with_headlines": ["hl-011", "hl-013"]
+    },
+    {
+      "id": "bc-006",
+      "text": "The Bentayga redefines the boundaries of capability. From urban boulevards to untamed wilderness, it carries you with equal assurance—a sanctuary that ventures wherever your ambitions lead. All-wheel drive responds intuitively to terrain. Air suspension adapts to conditions unseen. Inside, the world remains refined, whatever lies beyond the glass.",
+      "theme": "lifestyle",
+      "length": "medium",
+      "word_count": 52,
+      "suggested_models": ["bentayga"],
+      "pairs_well_with_headlines": ["hl-011", "hl-012", "hl-013"]
+    },
+    {
+      "id": "bc-007",
+      "text": "Our Beyond100 strategy charts a course toward sustainable luxury without compromise. The first all-electric Bentley will arrive in 2025, representing a new chapter in grand touring excellence. This is not a departure from our heritage—it is its natural evolution. For a century, Bentley has pioneered advances that redefine possibility. Our commitment to electrification honours that tradition, ensuring future generations inherit a world worthy of exploration. The spirit of W.O. Bentley—innovation in pursuit of the extraordinary—guides every decision we make today. The road ahead has never looked more promising.",
+      "theme": "innovation",
+      "length": "long",
+      "word_count": 95,
+      "suggested_models": ["all"],
+      "pairs_well_with_headlines": ["hl-014", "hl-015"]
+    },
+    {
+      "id": "bc-008",
+      "text": "Within the Mulliner workshop, imagination becomes reality. Our coachbuilding heritage stretches back to 1959, when craftsmen first applied their expertise to bespoke Bentley commissions. Today, Mulliner operates across three pillars: Classic, for the restoration and care of heritage vehicles; Collections, for limited-edition masterpieces; and Coachbuilt, for truly singular visions. Every commission begins with a conversation—your aspirations interpreted by artisans whose skills have no parallel in the modern automotive world. Leathers sourced from specific regions. Veneers matched to your existing furniture. Paint mixed to capture a particular sunset. At Mulliner, limitations exist only in the imagination. The result is not merely a motor car, but a legacy destined to be treasured for generations.",
+      "theme": "craftsmanship",
+      "length": "long",
+      "word_count": 117,
+      "suggested_models": ["all"],
+      "pairs_well_with_headlines": ["hl-001", "hl-003", "hl-004", "hl-008"]
+    }
+  ]
+}
