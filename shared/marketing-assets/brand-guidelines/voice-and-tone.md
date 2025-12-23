@@ -7,30 +7,35 @@ Bentley Motors represents the pinnacle of British luxury automotive craftsmanshi
 ## Voice Characteristics
 
 ### Confident Authority
+
 Bentley speaks with quiet confidence. We state excellence as fact, not as a claim to be debated. Our heritage and craftsmanship speak for themselves.
 
 **Do:** "Each Continental GT requires 130 hours of handcraftsmanship."
 **Don't:** "We believe we make the best cars in the world!"
 
 ### Sophisticated Elegance
+
 Our language is elevated without being inaccessible. We choose words that resonate with refinement and precision.
 
 **Do:** "The hand-selected hide adorns the interior with understated opulence."
 **Don't:** "The leather looks really expensive and fancy."
 
 ### Sensory & Evocative
+
 We invite audiences to feel, not just see. Our copy engages multiple senses—the scent of leather, the weight of the door, the whisper of the engine.
 
 **Do:** "Settle into quilted leather that yields to your form, surrounded by the subtle warmth of hand-polished veneer."
 **Don't:** "Our seats are comfortable and the wood trim looks nice."
 
 ### Heritage-Forward
+
 We honour our past whilst embracing the future. Our century of excellence informs everything we create, yet we continuously evolve.
 
 **Do:** "A century of expertise refines every stitch."
 **Don't:** "We've been around for 100+ years."
 
 ### Invitational, Not Commanding
+
 We extend invitations to experience, not demands to act. Our audience chooses Bentley; we do not pressure them.
 
 **Do:** "Begin your extraordinary journey."
@@ -40,17 +45,18 @@ We extend invitations to experience, not demands to act. Our audience chooses Be
 
 Bentley's voice remains consistent, but tone adapts to context:
 
-| Context | Tone Emphasis | Example |
-|---------|--------------|---------|
-| Product Launch | Reverent, Celebratory | "Introducing the next chapter in grand touring excellence." |
-| Craftsmanship | Intimate, Detailed | "Seventy hours of hand-stitching create a single interior." |
-| Performance | Assured, Thrilling | "600 brake horsepower, delivered with effortless composure." |
-| Lifestyle | Aspirational, Evocative | "Where will your next extraordinary journey take you?" |
-| Sustainability | Pioneering, Responsible | "Redefining luxury for a new era of mindful motoring." |
+| Context        | Tone Emphasis           | Example                                                      |
+| -------------- | ----------------------- | ------------------------------------------------------------ |
+| Product Launch | Reverent, Celebratory   | "Introducing the next chapter in grand touring excellence."  |
+| Craftsmanship  | Intimate, Detailed      | "Seventy hours of hand-stitching create a single interior."  |
+| Performance    | Assured, Thrilling      | "600 brake horsepower, delivered with effortless composure." |
+| Lifestyle      | Aspirational, Evocative | "Where will your next extraordinary journey take you?"       |
+| Sustainability | Pioneering, Responsible | "Redefining luxury for a new era of mindful motoring."       |
 
 ## Do's and Don'ts
 
 ### Do
+
 - Use British English spelling (honour, colour, centre, customised)
 - Lead with sensory details and craftsmanship
 - Reference specific details (hours of work, number of stitches, veneer selection)
@@ -59,6 +65,7 @@ Bentley's voice remains consistent, but tone adapts to context:
 - Let silence speak—not every sentence needs an adjective
 
 ### Don't
+
 - Use "luxury" as a standalone descriptor
 - Resort to superlatives without substance ("best ever," "most amazing")
 - Employ aggressive performance language ("beast," "monster," "brutal")
@@ -70,19 +77,21 @@ Bentley's voice remains consistent, but tone adapts to context:
 ## Vocabulary
 
 ### Preferred Terms
-| Instead of... | Use... |
-|--------------|--------|
-| High-end | Exquisite, refined |
-| Expensive | Rare, exceptional |
-| Fast | Swift, effortless, assured |
-| Comfortable | Cosseting, sanctuary, haven |
-| Customised | Bespoke, commissioned, personalised |
-| Factory | Atelier, Crewe, the home of Bentley |
-| Worker | Craftsman, artisan, specialist |
-| Old | Heritage, legacy, timeless |
-| New | Contemporary, evolved, progressive |
+
+| Instead of... | Use...                              |
+| ------------- | ----------------------------------- |
+| High-end      | Exquisite, refined                  |
+| Expensive     | Rare, exceptional                   |
+| Fast          | Swift, effortless, assured          |
+| Comfortable   | Cosseting, sanctuary, haven         |
+| Customised    | Bespoke, commissioned, personalised |
+| Factory       | Atelier, Crewe, the home of Bentley |
+| Worker        | Craftsman, artisan, specialist      |
+| Old           | Heritage, legacy, timeless          |
+| New           | Contemporary, evolved, progressive  |
 
 ### Power Words
+
 - Handcrafted, hand-finished, hand-selected
 - Exquisite, extraordinary, exceptional, distinguished
 - Grand touring, grand tourer
@@ -96,9 +105,11 @@ Bentley's voice remains consistent, but tone adapts to context:
 ## Model-Specific Messaging
 
 ### Continental GT
+
 **Essence:** The definitive grand tourer—power, beauty, and craftsmanship in perfect harmony.
 
 **Key Messages:**
+
 - Flagship coupé embodying Bentley's design and engineering philosophy
 - Handcrafted in Crewe, England
 - W12 or V8 powertrain options—effortless performance
@@ -107,9 +118,11 @@ Bentley's voice remains consistent, but tone adapts to context:
 **Tone:** Confident, iconic, celebratory
 
 ### Continental GTC
+
 **Essence:** Open-air grand touring for those who embrace the elements.
 
 **Key Messages:**
+
 - All the capability of the GT with the theatre of open motoring
 - Roof operation in under 19 seconds
 - Year-round usability with uncompromised refinement
@@ -118,9 +131,11 @@ Bentley's voice remains consistent, but tone adapts to context:
 **Tone:** Liberating, sensory, evocative
 
 ### Flying Spur
+
 **Essence:** A driver's limousine—the pinnacle of four-door luxury.
 
 **Key Messages:**
+
 - Rear-seat sanctuary with driver-focused dynamics
 - All-wheel drive, all-wheel steering
 - Technology seamlessly integrated into handcrafted surroundings
@@ -129,9 +144,11 @@ Bentley's voice remains consistent, but tone adapts to context:
 **Tone:** Stately, assured, commanding
 
 ### Bentayga
+
 **Essence:** The luxury SUV that created a segment—extraordinary capability, everywhere.
 
 **Key Messages:**
+
 - Peerless on-road refinement with genuine off-road capability
 - Versatility without compromise
 - Available as standard, extended, or S performance variant
@@ -140,9 +157,11 @@ Bentley's voice remains consistent, but tone adapts to context:
 **Tone:** Capable, versatile, adventurous yet refined
 
 ### Mulliner
+
 **Essence:** The bespoke division—where imagination becomes reality.
 
 **Key Messages:**
+
 - Coachbuilding heritage since 1959
 - Three pillars: Classic, Collections, Coachbuilt
 - Virtually limitless personalisation
@@ -153,8 +172,10 @@ Bentley's voice remains consistent, but tone adapts to context:
 ## Platform Adaptations
 
 ### Instagram
+
 **Tone:** Visual storytelling, sensory, aspirational
 **Approach:**
+
 - Lead with arresting single-line hooks
 - Use evocative, sensory copy that complements imagery
 - Hashtags support discovery; keep on-brand
@@ -167,8 +188,10 @@ Bentley's voice remains consistent, but tone adapts to context:
 #Bentley #ContinentalGT #GrandTouring #Handcrafted #BritishLuxury"
 
 ### LinkedIn
+
 **Tone:** Professional, heritage-focused, industry-aware
 **Approach:**
+
 - Emphasise craftsmanship, innovation, and brand legacy
 - Share behind-the-scenes insight into manufacturing
 - Connect to broader industry narratives
@@ -185,8 +208,10 @@ This is what 105 years of excellence truly means.
 #BentleyMotors #Craftsmanship #BritishManufacturing"
 
 ### Twitter/X
+
 **Tone:** Concise, impactful, real-time
 **Approach:**
+
 - Economy of language—every word must earn its place
 - Perfect for heritage moments, announcements, quotes
 - Punchy single statements work well
@@ -201,6 +226,7 @@ This is what 105 years of excellence truly means.
 ## Example Content
 
 ### Example 1: Continental GT Launch Post (Instagram)
+
 **Hook:** "A New Icon Emerges"
 
 **Body:** The Continental GT has been reimagined. Every surface sculpted with purpose. Every detail refined by craftsmen whose expertise spans generations. Six hundred brake horsepower awaits your command—delivered with the composure that defines Bentley grand touring.
@@ -212,6 +238,7 @@ This is what 105 years of excellence truly means.
 ---
 
 ### Example 2: Craftsmanship Feature (LinkedIn)
+
 **Hook:** "The Hands Behind the Wheel"
 
 **Body:** Behind every Bentley steering wheel lies a story of human dedication. In our Crewe atelier, master craftsmen hand-wrap each wheel with a single, continuous piece of leather—a technique that takes years to perfect. No two wheels are identical, for no two craftsmen apply their art in precisely the same way.
@@ -225,6 +252,7 @@ This is the difference between manufacturing and craftsmanship. One produces pro
 ---
 
 ### Example 3: Lifestyle Post (Instagram)
+
 **Hook:** "Where Will Your Extraordinary Journey Begin?"
 
 **Body:** A winding coastal road. The scent of leather warmed by morning sun. The distant promise of horizons yet unexplored. Every journey in a Flying Spur begins with a single, effortless moment—the moment you realise the destination is merely an excuse.
@@ -236,6 +264,7 @@ This is the difference between manufacturing and craftsmanship. One produces pro
 ---
 
 ### Example 4: Innovation Feature (Twitter/X)
+
 **Hook:** "Heritage Meets Horizon"
 
 **Body:** A century of expertise powers our journey toward sustainable luxury. Our Beyond100 strategy redefines what a grand tourer can be—without compromising what it must always remain.
@@ -261,4 +290,4 @@ When generating content using this asset pool:
 
 ---
 
-*Version 1.0 | Created for n8n Marketing Automation POC*
+_Version 1.0 | Created for n8n Marketing Automation POC_
