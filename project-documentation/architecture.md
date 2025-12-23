@@ -184,7 +184,7 @@ Host Machine                          Docker Container (n8n)
 ### Asset Organisation
 
 For detailed documentation of the marketing assets structure, see:
-**[../shared/marketing-assets/ASSET-STRUCTURE-GUIDE.md](../shared/marketing-assets/asset-structure-guide.md)**
+**[../shared/marketing-assets/asset-structure-guide.md](../shared/marketing-assets/asset-structure-guide.md)**
 
 Summary:
 
