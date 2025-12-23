@@ -9,7 +9,7 @@ networks:
 
 x-n8n: &service-n8n
   image: n8nio/n8n:latest
-  networks: ['demo']
+  networks: ["demo"]
   environment:
     - DB_TYPE=postgresdb
     - DB_POSTGRESDB_HOST=postgres
@@ -20,13 +20,16 @@ x-n8n: &service-n8n
     - N8N_ENCRYPTION_KEY
     - N8N_USER_MANAGEMENT_JWT_SECRET
     - OLLAMA_HOST=${OLLAMA_HOST:-ollama:11434}
+    # Fix for n8n 2.0.x file access bug - use semicolon separator
+    - N8N_RESTRICT_FILE_ACCESS_TO=/data/shared;/home/node/.n8n-files
+    - N8N_BLOCK_FILE_ACCESS_TO_N8N_FILES=false
   env_file:
     - .env
 
 x-ollama: &service-ollama
   image: ollama/ollama:latest
   container_name: ollama
-  networks: ['demo']
+  networks: ["demo"]
   restart: unless-stopped
   ports:
     - 11434:11434
@@ -35,7 +38,7 @@ x-ollama: &service-ollama
 
 x-init-ollama: &init-ollama
   image: ollama/ollama:latest
-  networks: ['demo']
+  networks: ["demo"]
   container_name: ollama-pull-llama
   volumes:
     - ollama_storage:/root/.ollama
@@ -50,7 +53,7 @@ services:
   postgres:
     image: postgres:16-alpine
     hostname: postgres
-    networks: ['demo']
+    networks: ["demo"]
     restart: unless-stopped
     environment:
       - POSTGRES_USER
@@ -59,7 +62,11 @@ services:
     volumes:
       - postgres_storage:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -99,7 +106,7 @@ services:
     image: qdrant/qdrant
     hostname: qdrant
     container_name: qdrant
-    networks: ['demo']
+    networks: ["demo"]
     restart: unless-stopped
     ports:
       - 6333:6333
@@ -146,4 +153,4 @@ services:
     <<: *init-ollama
     image: ollama/ollama:rocm
     depends_on:
-     - ollama-gpu-amd
+      - ollama-gpu-amd

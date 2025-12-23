@@ -1,0 +1,23 @@
+
+=== ASSET INVENTORY SUMMARY ===
+Timestamp: 2025-12-23T16:08:19.083Z
+Status: success
+
+IMAGES: 22 total
+   By Category: {"products":7,"lifestyle":4,"brand":7,"events":4}
+   By Vehicle: {"supersports":6,"generic":7,"continental-gt":3,"mulsanne":3,"none":3}
+   By Theme: {"performance":10,"luxury":12,"craftsmanship":3,"exclusivity":8,"heritage":6,"experience":2,"lifestyle":5,"innovation":1}
+
+HEADLINES: 15 total
+   By Theme: {"craftsmanship":4,"performance":3,"heritage":3,"lifestyle":3,"innovation":2}
+   By Tone: {"informative":2,"evocative":7,"aspirational":6}
+
+BODY COPY: 8 total
+   By Theme: {"craftsmanship":3,"performance":1,"heritage":1,"lifestyle":2,"innovation":1}
+   By Length: {"short":3,"medium":3,"long":2}
+
+CTAs: 10 total
+   By Intent: {"awareness":3,"consideration":4,"conversion":3}
+   By Destination: {"website":5,"configurator":2,"dealership":2,"test-drive":1}
+
+================================
