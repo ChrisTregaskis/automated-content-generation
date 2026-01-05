@@ -24,7 +24,7 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 ┌─────────────────┐     ┌─────────────────────┐     ┌──────────────────────┐
 │   Workflow 1    │     │    Workflow 2       │     │    Workflow 3        │
 │ Asset Inventory │     │ Content Assembler   │ ──► │ AI Content Generator │
-│   Reader ✅     │     │ (filter & select)   │     │ (Claude API)         │
+│   Reader ✅     │     │       ✅            │     │ (Claude API)         │
 └─────────────────┘     └─────────────────────┘     └──────────┬───────────┘
                                                                │
                                                                ▼
@@ -48,8 +48,8 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 | #   | Workflow               | Purpose                                                                   | Status      |
 | --- | ---------------------- | ------------------------------------------------------------------------- | ----------- |
 | 1   | Asset Inventory Reader | Read & summarise all marketing assets                                     | ✅ Complete |
-| 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations   | 🔜 Next     |
-| 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft  | 📋 Queued   |
+| 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations   | ✅ Complete |
+| 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft  | 🔜 Next     |
 | 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                 | 📋 Queued   |
 | 5   | Approval Handler       | Webhook receives button click, moves approved content, sends confirmation | 📋 Queued   |
 
@@ -71,7 +71,7 @@ This hands-on approach helps me build proficiency with n8n's interface and under
 
 ---
 
-## ⚠️ Troubleshooting Learnings from Previous Session
+## ⚠️ Troubleshooting Learnings
 
 ### 1. Docker Compose YAML Anchors Don't Merge — They Override
 
@@ -118,7 +118,19 @@ const buffer = await this.helpers.getBinaryDataBuffer(index, binaryKey);
 return JSON.parse(buffer.toString("utf-8"));
 ```
 
-### 4. Useful Docker Diagnostic Commands
+### 4. Read/Write Files Node Requires Extract From JSON
+
+**Problem:** When using "Read File(s) From Disk" with "Output: JSON", the JSON data is nested inside `item.json.data` rather than directly in `item.json`.
+
+**Solution:** Add an "Extract From JSON" node after each Read node to pull the data into a cleaner structure. This makes downstream processing much easier.
+
+**Pattern:**
+
+```
+[Read Files Node] → [Extract From JSON] → [Rest of workflow]
+```
+
+### 5. Useful Docker Diagnostic Commands
 
 ```bash
 cd ~/Prototypes/n8n/automated-content-generation
@@ -135,6 +147,20 @@ docker compose logs n8n --tail 50
 # Full restart (sometimes needed after env changes)
 docker compose down && docker compose up -d
 ```
+
+### 6. Saving Workflows to Version Control
+
+Workflows are stored in n8n's database, not as files. To export them for version control:
+
+```bash
+# List all workflows to find the ID
+docker compose exec n8n n8n list:workflow
+
+# Export a specific workflow by ID
+docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-data/workflows/<WORKFLOW_ID>.json
+```
+
+**Note:** The container path `/demo-data/workflows/` maps to `./n8n/demo-data/workflows/` on the host.
 
 ---
 
@@ -164,36 +190,59 @@ docker compose down && docker compose up -d
 
 ---
 
-## 🔜 To Build: Workflow 2 — Content Assembler
+## ✅ Completed: Workflow 2 — Content Assembler
 
-**Purpose:** Accept parameters and filter/select matching assets from the pools.
+**Documentation:** `project-documentation/workflows/content-assembler.md`
+
+**What it does:**
+
+- Accepts input parameters (theme, platform, vehicle)
+- Loads all marketing asset JSON files
+- Filters assets by theme and vehicle compatibility using metadata
+- Selects a random image from the filtered pool
+- Passes all matching headlines/body copy as few-shot examples (not randomly selected)
+- Loads the appropriate platform template (Instagram/LinkedIn/Twitter)
+- Validates sufficient matches exist
+- Outputs a structured content package for Workflow 3
 
 **Architecture:**
 
 ```
-[Manual Trigger with Inputs]
-    → [Load Asset Files]
-    → [Filter by Theme/Vehicle/Platform]
-    → [Select Compatible Assets]
-        • Match headlines with body copy (using pairs_well_with_headlines)
-        • Select appropriate CTA by intent
-        • Pick image matching theme/vehicle
-    → [Load Platform Template]
-    → [Validate Against Template Constraints]
-    → [Output Assembled Content Package]
+[Manual Trigger]
+       │
+       ▼
+[Set Input Parameters]
+       │
+       ├──► [Read Images Manifest] → [Extract Image Manifest JSON]    ─┐
+       ├──► [Read Headlines] → [Extract Headlines JSON]               ─┤
+       ├──► [Read Body Copy] → [Extract Body Copy JSON]               ─┼──► [Merge Assets]
+       └──► [Read CTAs] → [Extract CTAs JSON]                         ─┘         │
+                                                                                 ▼
+                                              [Read Platform Template] → [Extract Template JSON]
+                                                                                  │
+                                                                                  ▼
+                                                              [Assemble Content Package]
 ```
 
-**Input parameters to accept:**
+**Input parameters:**
 
 - `theme`: craftsmanship | performance | heritage | lifestyle | innovation
 - `platform`: instagram | linkedin | twitter
 - `vehicle`: continental-gt | flying-spur | bentayga | mulsanne | all
 
-**Output:** JSON package with selected headline, body copy, CTA, image reference, and platform template ready for Workflow 3.
+**Output:** JSON content package containing:
+
+- Selected image metadata
+- All matching headline examples (for few-shot prompting)
+- All matching body copy examples (for few-shot prompting)
+- Platform template constraints (character limits, hashtags, formatting)
+- Validation results (errors, warnings, counts)
+
+**Key design decision:** No AI in this workflow — purely metadata-driven filtering. The coherence comes from filtering by shared theme/vehicle, not random assembly.
 
 ---
 
-## 📋 To Build: Workflow 3 — AI Content Generator
+## 🔜 To Build: Workflow 3 — AI Content Generator
 
 **Purpose:** Use Claude API to generate fresh content using selected assets as context.
 
@@ -352,6 +401,7 @@ You can read these directly from the filesystem:
 - Brand guidelines: `~/Prototypes/n8n/automated-content-generation/shared/marketing-assets/brand-guidelines/voice-and-tone.md`
 - Platform templates: `~/Prototypes/n8n/automated-content-generation/shared/marketing-assets/templates/social/`
 - Completed Workflow 1: `~/Prototypes/n8n/automated-content-generation/n8n/demo-data/workflows/rxB9eMban4GTHany.json`
+- Workflow 2 documentation: `~/Prototypes/n8n/automated-content-generation/project-documentation/workflows/content-assembler.md`
 
 ## Brand Context (Quick Reference)
 
@@ -376,4 +426,4 @@ Before building Workflows 4 & 5:
 
 ---
 
-**Next step:** Build Workflow 2 — Content Assembler
+**Next step:** Build Workflow 3 — AI Content Generator
