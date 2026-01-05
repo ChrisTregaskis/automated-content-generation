@@ -24,7 +24,7 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 ┌─────────────────┐     ┌─────────────────────┐     ┌──────────────────────┐
 │   Workflow 1    │     │    Workflow 2       │     │    Workflow 3        │
 │ Asset Inventory │     │ Content Assembler   │ ──► │ AI Content Generator │
-│   Reader ✅     │     │       ✅            │     │ (Claude API)         │
+│   Reader ✅     │     │       ✅            │     │       ✅             │
 └─────────────────┘     └─────────────────────┘     └──────────┬───────────┘
                                                                │
                                                                ▼
@@ -49,9 +49,51 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 | --- | ---------------------- | ------------------------------------------------------------------------- | ----------- |
 | 1   | Asset Inventory Reader | Read & summarise all marketing assets                                     | ✅ Complete |
 | 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations   | ✅ Complete |
-| 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft  | 🔜 Next     |
-| 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                 | 📋 Queued   |
+| 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft  | ✅ Complete |
+| 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                 | 🔜 Next     |
 | 5   | Approval Handler       | Webhook receives button click, moves approved content, sends confirmation | 📋 Queued   |
+| 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                      | 📋 Final    |
+
+---
+
+## 🔗 Workflow Integration Strategy
+
+Currently, each workflow operates independently with manual triggers and test data. The final step after completing Workflows 4 & 5 is to connect them into a coherent automated pipeline.
+
+### Integration Options
+
+**Option A: Execute Workflow Node (Recommended for POC)**
+
+n8n has an "Execute Workflow" node that can call another workflow and pass data to it. This keeps workflows modular and testable individually while allowing orchestration.
+
+```
+[Workflow 6: Master Orchestrator]
+    → [Schedule or Manual Trigger]
+    → [Set Campaign Parameters]
+    → [Execute Workflow 2: Content Assembler]
+    → [Execute Workflow 3: AI Content Generator]
+    → [Execute Workflow 4: Slack Notifier]
+    → [Wait for approval via Workflow 5]
+```
+
+**Option B: Webhook Chaining**
+
+Each workflow ends with an HTTP Request node that POSTs to the next workflow's webhook trigger. More loosely coupled but harder to debug.
+
+**Option C: Single Monolithic Workflow**
+
+Merge all nodes into one workflow. Simpler to understand but harder to maintain and test individual components.
+
+### Recommendation
+
+Build Workflows 4 & 5 as standalone workflows first (easier to test Slack integration independently). Then create **Workflow 6: Master Orchestrator** that uses "Execute Workflow" nodes to chain them together.
+
+This approach:
+
+- Keeps each workflow testable in isolation
+- Allows easy modification of individual steps
+- Provides clear separation of concerns
+- Makes debugging simpler (can test each workflow independently)
 
 ---
 
@@ -118,19 +160,37 @@ const buffer = await this.helpers.getBinaryDataBuffer(index, binaryKey);
 return JSON.parse(buffer.toString("utf-8"));
 ```
 
-### 4. Read/Write Files Node Requires Extract From JSON
+### 4. Read/Write Files Node Requires Extract Step
 
-**Problem:** When using "Read File(s) From Disk" with "Output: JSON", the JSON data is nested inside `item.json.data` rather than directly in `item.json`.
+**Problem:** When using "Read File(s) From Disk", text files are read as binary by default. The "Output: String" option may not be visible in the UI.
 
-**Solution:** Add an "Extract From JSON" node after each Read node to pull the data into a cleaner structure. This makes downstream processing much easier.
+**Solution:** Add an "Extract From Text File" node after the Read node to convert binary to string.
 
 **Pattern:**
 
 ```
-[Read Files Node] → [Extract From JSON] → [Rest of workflow]
+[Read Files Node] → [Extract From Text File] → [Rest of workflow]
 ```
 
-### 5. Useful Docker Diagnostic Commands
+### 5. Saving JSON to Disk Requires Convert to File
+
+**Problem:** The "Write File to Disk" node expects binary data as input, not a JSON object directly.
+
+**Solution:** Add a "Convert to File" node before the Write node to serialise JSON to binary.
+
+**Pattern:**
+
+```
+[Code Node with JSON output] → [Convert to File (Convert to JSON)] → [Write File to Disk]
+```
+
+### 6. n8n 2.0.x Anthropic Node Structure
+
+**Problem:** The Anthropic node is accessed via "Anthropic" (not "Anthropic Claude") with specific actions.
+
+**Solution:** Search for "Anthropic", then select "Message a model" under TEXT ACTIONS.
+
+### 7. Useful Docker Diagnostic Commands
 
 ```bash
 cd ~/Prototypes/n8n/automated-content-generation
@@ -148,7 +208,7 @@ docker compose logs n8n --tail 50
 docker compose down && docker compose up -d
 ```
 
-### 6. Saving Workflows to Version Control
+### 8. Saving Workflows to Version Control
 
 Workflows are stored in n8n's database, not as files. To export them for version control:
 
@@ -242,40 +302,71 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 ---
 
-## 🔜 To Build: Workflow 3 — AI Content Generator
+## ✅ Completed: Workflow 3 — AI Content Generator
 
-**Purpose:** Use Claude API to generate fresh content using selected assets as context.
+**Documentation:** `project-documentation/workflows/content-generator.md`
+
+**What it does:**
+
+- Accepts content package (from Workflow 2 or manual test data)
+- Loads brand guidelines (voice-and-tone.md)
+- Builds comprehensive Claude prompt with:
+  - Brand voice rules and vocabulary
+  - Platform constraints (character limits, hashtag count)
+  - Image metadata for visual context
+  - Few-shot examples (headlines, body copy) for style reference
+- Calls Claude API to generate NEW, original content
+- Parses and validates response against constraints
+- Saves draft JSON to `/data/shared/output/drafts/`
 
 **Architecture:**
 
 ```
-[Trigger from Workflow 2 OR Manual with Content Package]
-    → [Load Brand Guidelines (voice-and-tone.md)]
-    → [Build Prompt]
-        • Include brand voice rules
-        • Include platform constraints
-        • Include 2-3 example headlines/body as few-shot context
-        • Include selected image metadata
-    → [Claude API Node - Generate NEW Content]
-    → [Parse & Validate Output]
-        • Check character limits
-        • Verify no exclamation marks
-        • Confirm British English spelling
-    → [Generate Draft ID]
-    → [Save to /data/shared/output/drafts/]
-    → [Trigger Workflow 4 (Slack Notifier)]
+[Manual Trigger]
+       │
+       ▼
+[Test Content Package]
+       │
+       ▼
+[Read Brand Guidelines] → [Extract Brand Guidelines Text]
+       │
+       ▼
+[Build Claude Prompt]
+       │
+       ▼
+[Claude: Generate Content]
+       │
+       ▼
+[Parse Claude Response]
+       │
+       ▼
+[Validate Output]
+       │
+       ▼
+[Generate Draft Metadata]
+       │
+       ▼
+[Convert Draft to File] → [Save Draft] → [Output Summary]
 ```
 
-**Claude API prompt should request:**
+**Validation checks:**
 
-- New headline (inspired by examples, not copied)
-- New body copy matching theme and platform length requirements
-- Formatted post with proper line breaks
-- Appropriate hashtags from platform pool
+- No exclamation marks (brand guideline)
+- Correct hashtag count
+- Within character limits
+- British English spelling detection
+- Body copy length vs optimal
+
+**Output:** Draft JSON file with:
+
+- Unique draft ID and timestamp
+- Generated content (headline, body copy, CTA, hashtags)
+- Validation results
+- Formatted post preview (ready to copy)
 
 ---
 
-## 📋 To Build: Workflow 4 — Slack Notifier
+## 🔜 To Build: Workflow 4 — Slack Notifier
 
 **Purpose:** Send content preview to Slack channel with interactive approve/reject buttons.
 
@@ -364,6 +455,41 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 ---
 
+## 📋 To Build: Workflow 6 — Master Orchestrator (Final Step)
+
+**Purpose:** Connect Workflows 2-5 into a single automated pipeline using "Execute Workflow" nodes.
+
+**Architecture:**
+
+```
+[Schedule Trigger or Manual]
+       │
+       ▼
+[Set Campaign Parameters]
+       │
+       ▼
+[Execute Workflow: Content Assembler]
+       │
+       ▼
+[Execute Workflow: AI Content Generator]
+       │
+       ▼
+[Execute Workflow: Slack Notifier]
+       │
+       ▼
+[Log: Pipeline Complete — Awaiting Human Review]
+```
+
+**Benefits of this approach:**
+
+- Each workflow remains testable in isolation
+- Easy to modify individual steps without affecting others
+- Clear separation of concerns
+- Simplified debugging
+- Can run sub-workflows independently for testing
+
+---
+
 ## Asset Structure
 
 All assets in `/data/shared/marketing-assets/` (container path):
@@ -400,8 +526,7 @@ You can read these directly from the filesystem:
 - Asset manifests: `~/Prototypes/n8n/automated-content-generation/shared/marketing-assets/`
 - Brand guidelines: `~/Prototypes/n8n/automated-content-generation/shared/marketing-assets/brand-guidelines/voice-and-tone.md`
 - Platform templates: `~/Prototypes/n8n/automated-content-generation/shared/marketing-assets/templates/social/`
-- Completed Workflow 1: `~/Prototypes/n8n/automated-content-generation/n8n/demo-data/workflows/rxB9eMban4GTHany.json`
-- Workflow 2 documentation: `~/Prototypes/n8n/automated-content-generation/project-documentation/workflows/content-assembler.md`
+- Workflow documentation: `~/Prototypes/n8n/automated-content-generation/project-documentation/workflows/`
 
 ## Brand Context (Quick Reference)
 
@@ -426,4 +551,4 @@ Before building Workflows 4 & 5:
 
 ---
 
-**Next step:** Build Workflow 3 — AI Content Generator
+**Next step:** Build Workflow 4 — Slack Notifier
