@@ -1,0 +1,48 @@
+[
+  {
+    "draft": {
+      "draftId": "draft-20260106T124754-u84ibw",
+      "createdAt": "2026-01-06T12:47:54.039Z",
+      "status": "pending_review",
+      "sourcePackageId": "pkg-test-001",
+      "params": {
+        "theme": "craftsmanship",
+        "platform": "instagram",
+        "vehicle": "continental-gt"
+      },
+      "image": {
+        "id": "img-003",
+        "filename": "supersports-detail.jpg",
+        "path": "products/supersports-detail.jpg",
+        "vehicle": "supersports",
+        "shotType": "detail",
+        "themes": ["craftsmanship", "performance"],
+        "notes": "Close-up detail work for craftsmanship narratives"
+      },
+      "generatedContent": {
+        "headline": "Precision in Every Detail",
+        "bodyCopy": "Each Continental GT component undergoes meticulous hand-finishing, where generations of expertise meet contemporary innovation.",
+        "cta": "Discover the Artistry",
+        "hashtags": [
+          "#BentleyMotors",
+          "#Craftsmanship",
+          "#ContinentalGT",
+          "#Handcrafted",
+          "#BritishLuxury"
+        ],
+        "totalCharacters": 246
+      },
+      "validation": {
+        "isValid": true,
+        "errors": [],
+        "warnings": [],
+        "totalCharacters": 251,
+        "bodyCharacters": 127,
+        "hashtagCount": 5
+      },
+      "formattedPost": "Precision in Every Detail\n\nEach Continental GT component undergoes meticulous hand-finishing, where generations of expertise meet contemporary innovation.\n\nDiscover the Artistry\n\n#BentleyMotors #Craftsmanship #ContinentalGT #Handcrafted #BritishLuxury"
+    },
+    "filename": "draft-20260106T124754-u84ibw.json",
+    "filePath": "/data/shared/output/drafts/draft-20260106T124754-u84ibw.json"
+  }
+]

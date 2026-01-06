@@ -97,7 +97,7 @@ ls -la ~/Prototypes/n8n/automated-content-generation/shared/output/drafts/
 cat ~/Prototypes/n8n/automated-content-generation/shared/output/drafts/draft-*.json | jq
 
 # Or view specific draft
-cat ~/Prototypes/n8n/automated-content-generation/shared/output/drafts/draft-20260105T161305-qgh5so.json | jq
+cat ~/Prototypes/n8n/automated-content-generation/shared/output/drafts/draft-20260106T124754-u84ibw.json | jq
 ```
 
 ### Expected Draft Structure

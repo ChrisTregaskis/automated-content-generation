@@ -14,7 +14,7 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 - **LLM**: Claude API via Anthropic credentials (configured in n8n)
 - **Vector Store**: Qdrant at http://localhost:6333 (available but not yet used)
 - **File System**: `./shared` on host → `/data/shared/` inside n8n container
-- **Slack**: Free workspace for approval notifications (to be set up)
+- **Slack**: "Prototypes" workspace with `#content-review` channel ✅
 
 ---
 
@@ -31,7 +31,7 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
                         ┌─────────────────────┐     ┌──────────────────────┐
                         │    Workflow 5       │ ◄── │    Workflow 4        │
                         │ Approval Handler    │     │ Slack Notifier       │
-                        │ (webhook receiver)  │     │ (review request)     │
+                        │ (webhook receiver)  │     │       ✅             │
                         └─────────┬───────────┘     └──────────────────────┘
                                   │
                           ┌───────┴───────┐
@@ -50,8 +50,8 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 | 1   | Asset Inventory Reader | Read & summarise all marketing assets                                     | ✅ Complete |
 | 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations   | ✅ Complete |
 | 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft  | ✅ Complete |
-| 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                 | 🔜 Next     |
-| 5   | Approval Handler       | Webhook receives button click, moves approved content, sends confirmation | 📋 Queued   |
+| 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                 | ✅ Complete |
+| 5   | Approval Handler       | Webhook receives button click, moves approved content, sends confirmation | 🔜 Next     |
 | 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                      | 📋 Final    |
 
 ---
@@ -222,6 +222,23 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 **Note:** The container path `/demo-data/workflows/` maps to `./n8n/demo-data/workflows/` on the host.
 
+### 9. n8n Slack Node Block Kit Issues
+
+**Problem:** The native n8n Slack node with "Block Kit" message type doesn't reliably render blocks — only the fallback text appears.
+
+**Solution:** Use HTTP Request node to call Slack's `chat.postMessage` API directly:
+
+- **URL:** `https://slack.com/api/chat.postMessage`
+- **Method:** POST
+- **Auth:** Header Auth with `Authorization: Bearer xoxb-...`
+- **Body:** JSON with `channel`, `blocks`, and `text` fields
+
+### 10. Slack OAuth2 vs API Credentials
+
+**Problem:** When adding Slack credentials in n8n, "Slack OAuth2 API" requires redirect URI configuration which fails for localhost development.
+
+**Solution:** Use "Slack API" credential type instead — it only requires the Bot Token (`xoxb-...`) and works immediately for local development.
+
 ---
 
 ## ✅ Completed: Workflow 1 — Asset Inventory Reader
@@ -300,6 +317,14 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 **Key design decision:** No AI in this workflow — purely metadata-driven filtering. The coherence comes from filtering by shared theme/vehicle, not random assembly.
 
+### ⚠️ Post-Integration Enhancement Required
+
+**Issue:** Workflow 2 doesn't currently include image URLs in the content package. The `url` field was added to `images-manifest.json` (v1.1) but Workflow 2's "Assemble Content Package" node needs updating to pass it through.
+
+**Impact:** Workflow 4 uses a hardcoded URL lookup map as a workaround. Future drafts should include the URL directly.
+
+**Action:** After completing Workflow 5, update Workflow 2 to include `image.url` in the output package, then remove the lookup map from Workflow 4's "Parse Draft" node.
+
 ---
 
 ## ✅ Completed: Workflow 3 — AI Content Generator
@@ -366,60 +391,53 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 ---
 
-## 🔜 To Build: Workflow 4 — Slack Notifier
+## ✅ Completed: Workflow 4 — Slack Notifier
 
-**Purpose:** Send content preview to Slack channel with interactive approve/reject buttons.
+**Documentation:** `project-documentation/workflows/slack-notifier.md`
 
-**Prerequisites:**
+**What it does:**
 
-- Free Slack workspace set up
-- Slack app created with Bot Token and appropriate scopes
-- n8n Slack credentials configured
+- Reads draft JSON file from `/data/shared/output/drafts/`
+- Looks up public image URL (from manifest or hardcoded map)
+- Builds Slack Block Kit message with:
+  - Header and draft ID
+  - Image preview (from public URL)
+  - Headline, body copy, CTA, hashtags sections
+  - Metadata context (platform, theme, vehicle, character count)
+  - Interactive buttons: Approve / Reject / Request Changes
+- Posts to `#content-review` channel via HTTP Request
+- Outputs message timestamp for Workflow 5
 
 **Architecture:**
 
 ```
-[Webhook Trigger from Workflow 3]
-    → [Load Draft Content from File]
-    → [Build Slack Block Kit Message]
-        • Image block (selected image URL or upload)
-        • Section: Headline
-        • Section: Body copy
-        • Context: Platform, theme, vehicle, character count
-        • Actions: Approve / Reject / Request Changes buttons
-    → [Send to Slack Channel]
-    → [Log notification sent]
+[Manual Trigger]
+       │
+       ▼
+[Set Test Data] ──► (provides draft file path)
+       │
+       ▼
+[Read Draft File] → [Extract Draft JSON] → [Parse Draft]
+       │
+       ▼
+[Build Slack Blocks]
+       │
+       ▼
+[Send to Slack] (HTTP Request)
+       │
+       ▼
+[Output Confirmation]
 ```
 
-**Slack Block Kit structure:**
+**Key technical notes:**
 
-```
-┌─────────────────────────────────────────────┐
-│  📝 CONTENT REVIEW REQUEST                  │
-│  Draft ID: draft-2024-01-15-001             │
-├─────────────────────────────────────────────┤
-│  [═══════ IMAGE PREVIEW ═══════]            │
-├─────────────────────────────────────────────┤
-│  *Headline*                                 │
-│  "Where precision meets passion"            │
-│                                             │
-│  *Body Copy*                                │
-│  Every stitch placed by hand. Every         │
-│  surface considered...                      │
-│                                             │
-│  *CTA*                                      │
-│  Discover the Continental GT →              │
-├─────────────────────────────────────────────┤
-│  Platform: Instagram | Theme: Craftsmanship │
-│  Vehicle: Continental GT | Chars: 847/2200  │
-├─────────────────────────────────────────────┤
-│  [✅ Approve]  [❌ Reject]  [✏️ Changes]    │
-└─────────────────────────────────────────────┘
-```
+- Uses HTTP Request node instead of native Slack node (Block Kit rendering issues)
+- Includes hardcoded URL lookup map for legacy drafts (see Workflow 2 enhancement note)
+- Captures `ts` (message timestamp) for message updates in Workflow 5
 
 ---
 
-## 📋 To Build: Workflow 5 — Approval Handler
+## 🔜 To Build: Workflow 5 — Approval Handler
 
 **Purpose:** Receive button clicks from Slack and process approval/rejection.
 
@@ -497,7 +515,7 @@ All assets in `/data/shared/marketing-assets/` (container path):
 ```
 marketing-assets/
 ├── images/
-│   └── images-manifest.json   # 22 images with metadata (category, vehicle, themes, shot_type)
+│   └── images-manifest.json   # 22 images with metadata + URLs (v1.1)
 ├── copy/
 │   ├── headlines/headlines.json    # 15 headlines (theme, tone, suggested_models)
 │   ├── body-copy/body-copy.json    # 8 body copy pieces (theme, length, pairs_well_with_headlines)
@@ -537,18 +555,30 @@ You can read these directly from the filesystem:
 
 ---
 
-## Slack Setup Checklist
+## ✅ Slack Setup (Complete)
 
-Before building Workflows 4 & 5:
-
-- [ ] Create free Slack workspace (or use existing)
-- [ ] Create Slack app at api.slack.com
-- [ ] Enable Bot Token with scopes: `chat:write`, `files:write`, `channels:read`
-- [ ] Enable Interactivity with n8n webhook URL
-- [ ] Install app to workspace
-- [ ] Create `#content-review` channel
-- [ ] Add n8n Slack credentials (Bot Token)
+- [x] Create free Slack workspace — "Prototypes"
+- [x] Create Slack app at api.slack.com — "Content Review Bot"
+- [x] Enable Bot Token with scopes: `chat:write`, `chat:write.public`, `files:write`, `channels:read`
+- [x] Enable Interactivity (placeholder URL — update for Workflow 5)
+- [x] Install app to workspace
+- [x] Create `#content-review` channel
+- [x] Add n8n credentials:
+  - Slack API credential (Bot Token for native nodes)
+  - Header Auth credential (for HTTP Request to Slack API)
 
 ---
 
-**Next step:** Build Workflow 4 — Slack Notifier
+## 📝 Post-Completion Tasks
+
+After all workflows are complete:
+
+1. **Update Workflow 2** — Include `image.url` in content package output
+2. **Update Workflow 4** — Remove hardcoded URL lookup map from "Parse Draft" node
+3. **Update Slack Interactivity URL** — Point to Workflow 5's webhook
+4. **Export all workflows** — Save to `n8n/demo-data/workflows/` for version control
+5. **Test end-to-end** — Run full pipeline from Workflow 6
+
+---
+
+**Next step:** Build Workflow 5 — Approval Handler
