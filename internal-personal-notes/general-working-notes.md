@@ -252,19 +252,6 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 - Builds inventory summary with statistics (by theme, vehicle, tone, etc.)
 - Formats and writes summary to `/data/shared/output/inventory-summary.txt`
 
-**Architecture:**
-
-```
-[Manual Trigger]
-    → [Read Images Manifest]  ─┐
-    → [Read Headlines]        ─┤
-    → [Read Body Copy]        ─┼→ [Merge (4 inputs)] → [Build Inventory Summary]
-    → [Read CTAs]             ─┘           ↓
-                                    [Format Output]
-                                           ↓
-                              [Convert to File] → [Write to Disk]
-```
-
 ---
 
 ## ✅ Completed: Workflow 2 — Content Assembler
@@ -282,38 +269,11 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 - Validates sufficient matches exist
 - Outputs a structured content package for Workflow 3
 
-**Architecture:**
-
-```
-[Manual Trigger]
-       │
-       ▼
-[Set Input Parameters]
-       │
-       ├──► [Read Images Manifest] → [Extract Image Manifest JSON]    ─┐
-       ├──► [Read Headlines] → [Extract Headlines JSON]               ─┤
-       ├──► [Read Body Copy] → [Extract Body Copy JSON]               ─┼──► [Merge Assets]
-       └──► [Read CTAs] → [Extract CTAs JSON]                         ─┘         │
-                                                                                 ▼
-                                              [Read Platform Template] → [Extract Template JSON]
-                                                                                  │
-                                                                                  ▼
-                                                              [Assemble Content Package]
-```
-
 **Input parameters:**
 
 - `theme`: craftsmanship | performance | heritage | lifestyle | innovation
 - `platform`: instagram | linkedin | twitter
 - `vehicle`: continental-gt | flying-spur | bentayga | mulsanne | all
-
-**Output:** JSON content package containing:
-
-- Selected image metadata
-- All matching headline examples (for few-shot prompting)
-- All matching body copy examples (for few-shot prompting)
-- Platform template constraints (character limits, hashtags, formatting)
-- Validation results (errors, warnings, counts)
 
 **Key design decision:** No AI in this workflow — purely metadata-driven filtering. The coherence comes from filtering by shared theme/vehicle, not random assembly.
 
@@ -344,51 +304,6 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 - Parses and validates response against constraints
 - Saves draft JSON to `/data/shared/output/drafts/`
 
-**Architecture:**
-
-```
-[Manual Trigger]
-       │
-       ▼
-[Test Content Package]
-       │
-       ▼
-[Read Brand Guidelines] → [Extract Brand Guidelines Text]
-       │
-       ▼
-[Build Claude Prompt]
-       │
-       ▼
-[Claude: Generate Content]
-       │
-       ▼
-[Parse Claude Response]
-       │
-       ▼
-[Validate Output]
-       │
-       ▼
-[Generate Draft Metadata]
-       │
-       ▼
-[Convert Draft to File] → [Save Draft] → [Output Summary]
-```
-
-**Validation checks:**
-
-- No exclamation marks (brand guideline)
-- Correct hashtag count
-- Within character limits
-- British English spelling detection
-- Body copy length vs optimal
-
-**Output:** Draft JSON file with:
-
-- Unique draft ID and timestamp
-- Generated content (headline, body copy, CTA, hashtags)
-- Validation results
-- Formatted post preview (ready to copy)
-
 ---
 
 ## ✅ Completed: Workflow 4 — Slack Notifier
@@ -407,27 +322,6 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
   - Interactive buttons: Approve / Reject / Request Changes
 - Posts to `#content-review` channel via HTTP Request
 - Outputs message timestamp for Workflow 5
-
-**Architecture:**
-
-```
-[Manual Trigger]
-       │
-       ▼
-[Set Test Data] ──► (provides draft file path)
-       │
-       ▼
-[Read Draft File] → [Extract Draft JSON] → [Parse Draft]
-       │
-       ▼
-[Build Slack Blocks]
-       │
-       ▼
-[Send to Slack] (HTTP Request)
-       │
-       ▼
-[Output Confirmation]
-```
 
 **Key technical notes:**
 
