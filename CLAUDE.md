@@ -55,6 +55,37 @@ docker compose restart n8n
 docker compose ps
 ```
 
+## Cloudflare Tunnel (Required for Webhooks)
+
+Workflows using webhook triggers require a Cloudflare tunnel to expose the local n8n instance to the internet. Without the tunnel running, external services (e.g. Slack) cannot reach the webhook endpoints.
+
+### Starting the Tunnel
+
+```bash
+# Start a quick tunnel (generates a new URL each time)
+cloudflared tunnel --url http://localhost:5678
+```
+
+The tunnel URL will be displayed in the output:
+```
+|  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+|  https://<random-subdomain>.trycloudflare.com                                              |
+```
+
+### Configuring n8n Webhook URL
+
+After starting the tunnel, update n8n's webhook URL in the UI:
+1. Go to **Settings** > **n8n instance** (or environment variables)
+2. Set the **Webhook URL** to your tunnel URL (e.g. `https://hansen-visiting-mailed-guam.trycloudflare.com`)
+
+Alternatively, set the `WEBHOOK_URL` environment variable in your `.env` file (requires container restart).
+
+### Important Notes
+
+- **Quick tunnels** generate a new random URL each time they're started - you'll need to update webhook URLs in n8n and any external services
+- For production use, consider a [named tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps) with a stable URL
+- The tunnel must remain running for webhooks to function
+
 ## n8n Design Principles
 
 1. **Idempotency** - workflows can safely retry without side effects

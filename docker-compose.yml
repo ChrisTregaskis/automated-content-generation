@@ -23,6 +23,8 @@ x-n8n: &service-n8n
     # Fix for n8n 2.0.x file access bug - use semicolon separator
     - N8N_RESTRICT_FILE_ACCESS_TO=/data/shared;/home/node/.n8n-files
     - N8N_BLOCK_FILE_ACCESS_TO_N8N_FILES=false
+    # Cloudflare tunnel URL for webhooks (set in .env, requires restart when changed)
+    - WEBHOOK_URL=${WEBHOOK_URL:-}
   env_file:
     - .env
 

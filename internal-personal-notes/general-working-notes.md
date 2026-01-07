@@ -224,8 +224,8 @@ Workflows are stored in n8n's database, not as files. To export them for version
 # List all workflows to find the ID
 docker compose exec n8n n8n list:workflow
 
-# Export a specific workflow by ID
-docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-data/workflows/<WORKFLOW_ID>.json
+# Export all workflows
+./scripts/export-n8n.sh
 ```
 
 **Note:** The container path `/demo-data/workflows/` maps to `./n8n/demo-data/workflows/` on the host.
