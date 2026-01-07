@@ -34,25 +34,33 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
                         │ (webhook receiver)  │     │       ✅             │
                         └─────────┬───────────┘     └──────────────────────┘
                                   │
-                          ┌───────┴───────┐
-                          ▼               ▼
-                     [Approved]      [Rejected]
-                          │               │
-                          ▼               ▼
-                  [Move to approved/] [Archive + feedback]
-                          │
-                          ▼
-                  [Confirmation message]
+                  ┌───────────────┼───────────────┐
+                  ▼               ▼               ▼
+             [Approved]      [Rejected]    [Request Changes]
+                  │               │               │
+                  ▼               ▼               ▼
+          [Move to approved/] [Archive]    [Feedback Modal] ◄─── NEW
+                  │                               │
+                  ▼                               ▼
+          [Render HTML Preview] ◄─── NEW   [Re-run Content Generator]
+                  │                               │
+                  ▼                               ▼
+          [Save to rendered-approved/]     [Send revised draft to Slack]
+                  │                               │
+                  ▼                               └──► (back to review)
+          [Confirmation message]
 ```
 
-| #   | Workflow               | Purpose                                                                   | Status      |
-| --- | ---------------------- | ------------------------------------------------------------------------- | ----------- |
-| 1   | Asset Inventory Reader | Read & summarise all marketing assets                                     | ✅ Complete |
-| 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations   | ✅ Complete |
-| 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft  | ✅ Complete |
-| 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                 | ✅ Complete |
-| 5   | Approval Handler       | Webhook receives button click, moves approved content, sends confirmation | 🔜 Next     |
-| 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                      | 📋 Final    |
+| #   | Workflow               | Purpose                                                                                  | Status      |
+| --- | ---------------------- | ---------------------------------------------------------------------------------------- | ----------- |
+| 1   | Asset Inventory Reader | Read & summarise all marketing assets                                                    | ✅ Complete |
+| 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations                  | ✅ Complete |
+| 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft                 | ✅ Complete |
+| 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                                | ✅ Complete |
+| 5   | Approval Handler       | Handle Slack interactions: approve (+ render HTML), reject, or iterate via feedback loop | 🔜 Next     |
+| 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                                     | 📋 Final    |
+
+**Reference plans:** `internal-personal-notes/plans/`
 
 ---
 
@@ -333,37 +341,95 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 ## 🔜 To Build: Workflow 5 — Approval Handler
 
-**Purpose:** Receive button clicks from Slack and process approval/rejection.
+**Purpose:** Receive Slack interactions (button clicks and modal submissions), process approval/rejection/feedback, render HTML previews on approval, and support iterative content refinement.
 
-**Architecture:**
+**Full scope includes:**
+
+- Handle approve/reject/request-changes button clicks
+- Generate HTML platform mockups on approval
+- Capture feedback via Slack modal and re-generate content with Claude
+- Support iterative refinement until approval
+
+### Complete Architecture
 
 ```
 [Webhook Trigger (Slack Interactive)]
     → [Parse Slack Payload]
-    → [Extract action + draft ID]
-    → [Switch Node: Approve / Reject / Changes]
+    → [Respond to Slack] (immediate 200 OK)
+    → [Switch: payload type]
         │
-        ├─► [Approve]
-        │       → [Move file: drafts/ → approved/]
-        │       → [Update Slack message: "✅ Approved by @user"]
-        │       → [Log approval]
+        ├─► [block_actions: button click]
+        │       → [Switch: action_id]
+        │           │
+        │           ├─► [approve_content]
+        │           │       → [Move file: drafts/ → approved/]
+        │           │       → [Read HTML Template]
+        │           │       → [Render HTML Preview]
+        │           │       → [Write to rendered-approved/]
+        │           │       → [Update Slack: "✅ Approved + preview generated"]
+        │           │
+        │           ├─► [reject_content]
+        │           │       → [Move file: drafts/ → rejected/]
+        │           │       → [Update Slack: "❌ Rejected by @user"]
+        │           │
+        │           └─► [request_changes]
+        │                   → [Open Slack Modal for feedback input]
+        │                   → [Update Slack: "✏️ Awaiting feedback..."]
         │
-        ├─► [Reject]
-        │       → [Move file: drafts/ → rejected/]
-        │       → [Update Slack message: "❌ Rejected by @user"]
-        │       → [Log rejection with reason]
-        │
-        └─► [Request Changes]
-                → [Open thread for feedback]
-                → [Keep in drafts/]
-                → [Update message: "✏️ Changes requested"]
+        └─► [view_submission: modal submitted]
+                → [Extract feedback text + draft_id from metadata]
+                → [Load original draft from drafts/]
+                → [Build revision prompt: original + feedback]
+                → [Call Claude API for revised content]
+                → [Save as new draft version (draft_123_v2)]
+                → [Send revised content to Slack via Workflow 4 pattern]
+                → [Update original message: "Revision sent"]
 ```
 
-**Slack webhook requirements:**
+### Approve Branch: HTML Preview Generation
+
+On approval, generate a visual HTML mockup of the content as it would appear on the target platform.
+
+**Why it matters:** Transforms abstract JSON metadata into tangible visual output. Stakeholders can immediately see "this is what it would look like" — significantly strengthens demo impact.
+
+**Template placeholders:**
+
+```
+{{headline}}, {{body_copy}}, {{cta}}, {{hashtags}}, {{image_url}}, {{draft_id}}, {{platform}}, {{generated_date}}
+```
+
+**Detailed plan:** `internal-personal-notes/plans/rendered-html-previews.md`
+
+### Request Changes Branch: Feedback Loop
+
+On "Request Changes", capture user feedback via Slack modal, re-generate content with Claude incorporating the feedback, and send the revised draft back for review.
+
+**Why it matters:** Elevates the POC from binary approve/reject to genuine human-AI collaboration. Demonstrates iterative refinement — how creative teams actually work.
+
+**Key decisions:**
+
+- Modal-based feedback (cleaner UX than thread-based)
+- Versioned drafts (`_v2`, `_v3`) rather than overwriting
+- Revision chain tracked in metadata
+
+**Detailed plan:** `internal-personal-notes/plans/slack-feedback-loop.md`
+
+### Directories Required
+
+| Resource          | Container Path                           | Purpose                        |
+| ----------------- | ---------------------------------------- | ------------------------------ |
+| Draft files       | `/data/shared/output/drafts/`            | Content awaiting review        |
+| Approved output   | `/data/shared/output/approved/`          | Approved content metadata      |
+| Rejected output   | `/data/shared/output/rejected/`          | Rejected content (archive)     |
+| HTML templates    | `/data/shared/rendered-templates/`       | Platform mockup templates      |
+| Rendered previews | `/data/shared/output/rendered-approved/` | Generated HTML visual previews |
+
+### Slack Webhook Requirements
 
 - Interactivity enabled in Slack app
-- Request URL pointing to n8n webhook
-- Proper response within 3 seconds (acknowledge immediately, process async if needed)
+- Request URL pointing to n8n webhook (via ngrok for local dev)
+- Modal support enabled
+- Proper response within 3 seconds (acknowledge immediately, process async)
 
 ---
 
@@ -404,22 +470,33 @@ docker compose exec n8n n8n export:workflow --id=<WORKFLOW_ID> --output=/demo-da
 
 ## Asset Structure
 
-All assets in `/data/shared/marketing-assets/` (container path):
+All assets in `/data/shared/` (container path):
 
 ```
-marketing-assets/
-├── images/
-│   └── images-manifest.json   # 22 images with metadata + URLs (v1.1)
-├── copy/
-│   ├── headlines/headlines.json    # 15 headlines (theme, tone, suggested_models)
-│   ├── body-copy/body-copy.json    # 8 body copy pieces (theme, length, pairs_well_with_headlines)
-│   └── ctas/ctas.json              # 10 CTAs (intent, destination, urgency)
-├── templates/social/
-│   ├── instagram-post.json         # Platform constraints & hashtag pools
-│   ├── linkedin-post.json
-│   └── twitter-post.json
-└── brand-guidelines/
-    └── voice-and-tone.md           # Brand voice rules, vocabulary, do's/don'ts
+shared/
+├── marketing-assets/
+│   ├── images/
+│   │   └── images-manifest.json   # 22 images with metadata + URLs (v1.1)
+│   ├── copy/
+│   │   ├── headlines/headlines.json    # 15 headlines (theme, tone, suggested_models)
+│   │   ├── body-copy/body-copy.json    # 8 body copy pieces (theme, length, pairs_well_with_headlines)
+│   │   └── ctas/ctas.json              # 10 CTAs (intent, destination, urgency)
+│   ├── templates/social/
+│   │   ├── instagram-post.json         # Platform constraints & hashtag pools
+│   │   ├── linkedin-post.json
+│   │   └── twitter-post.json
+│   └── brand-guidelines/
+│       └── voice-and-tone.md           # Brand voice rules, vocabulary, do's/don'ts
+│
+├── rendered-templates/                  # 🆕 HTML mockup templates
+│   ├── instagram-post.html
+│   ├── linkedin-post.html
+│   └── twitter-post.html
+│
+└── output/
+    ├── drafts/                          # Generated content awaiting review
+    ├── approved/                        # Approved content metadata
+    └── rendered-approved/               # 🆕 HTML visual previews
 ```
 
 ---
@@ -472,7 +549,8 @@ After all workflows are complete:
 3. **Update Slack Interactivity URL** — Point to Workflow 5's webhook
 4. **Export all workflows** — Save to `n8n/demo-data/workflows/` for version control
 5. **Test end-to-end** — Run full pipeline from Workflow 6
+6. **Create HTML templates** — Build `shared/rendered-templates/` with platform mockups (Instagram, LinkedIn, Twitter)
 
 ---
 
-**Next step:** Build Workflow 5 — Approval Handler
+**Next step:** Build Workflow 5 — Approval Handler (full scope: approve + HTML render, reject, feedback loop)
