@@ -31,13 +31,11 @@ A draft JSON file containing:
 ## Workflow Structure
 
 ```
-[Manual Trigger]
-       │
-       ▼
-[Test Content Package]
-       │
-       ▼
-[Read Brand Guidelines] → [Extract Brand Guidelines Text]
+[When Executed by Another Workflow] ──┐
+                                      ├─► [Merge Package Inputs]
+[Manual Trigger] → [Set Test Package] ──┘           │
+                                                     ▼
+                                            [Read Brand Guidelines] → [Extract Brand Guidelines Text]
        │
        ▼
 [Build Claude Prompt]
@@ -60,20 +58,22 @@ A draft JSON file containing:
 
 ### Node Summary
 
-| Node                          | Type              | Purpose                                           |
-| ----------------------------- | ----------------- | ------------------------------------------------- |
-| Manual Trigger                | Trigger           | Starts workflow                                   |
-| Test Content Package          | Set (JSON mode)   | Injects test data simulating Workflow 2 output    |
-| Read Brand Guidelines         | Read/Write Files  | Loads voice-and-tone.md as binary                 |
-| Extract Brand Guidelines Text | Extract From Text | Converts binary to string for prompt use          |
-| Build Claude Prompt           | Code              | Assembles comprehensive prompt with all context   |
-| Claude: Generate Content      | Anthropic         | Calls Claude API with "Message a model" action    |
-| Parse Claude Response         | Code              | Extracts and parses JSON from Claude's response   |
-| Validate Output               | Code              | Checks constraints (chars, spelling, exclamation) |
-| Generate Draft Metadata       | Code              | Creates unique ID, filename, and draft object     |
-| Convert Draft to File         | Convert to File   | Serialises JSON to binary for file writing        |
-| Save Draft                    | Read/Write Files  | Writes draft JSON to disk                         |
-| Output Summary                | Set               | Formats confirmation message with draft details   |
+| Node                              | Type                | Purpose                                           |
+| --------------------------------- | ------------------- | ------------------------------------------------- |
+| When Executed by Another Workflow | Trigger             | Receives content package from Master Orchestrator |
+| Manual Trigger                    | Trigger             | Starts workflow for standalone testing            |
+| Set Test Package                  | Set (JSON mode)     | Injects test data simulating Workflow 2 output    |
+| Merge Package Inputs              | Merge (Append mode) | Combines whichever trigger fires                  |
+| Read Brand Guidelines             | Read/Write Files    | Loads voice-and-tone.md as binary                 |
+| Extract Brand Guidelines Text     | Extract From Text   | Converts binary to string for prompt use          |
+| Build Claude Prompt               | Code                | Assembles comprehensive prompt with all context   |
+| Claude: Generate Content          | Anthropic           | Calls Claude API with "Message a model" action    |
+| Parse Claude Response             | Code                | Extracts and parses JSON from Claude's response   |
+| Validate Output                   | Code                | Checks constraints (chars, spelling, exclamation) |
+| Generate Draft Metadata           | Code                | Creates unique ID, filename, and draft object     |
+| Convert Draft to File             | Convert to File     | Serialises JSON to binary for file writing        |
+| Save Draft                        | Read/Write Files    | Writes draft JSON to disk                         |
+| Output Summary                    | Set                 | Formats confirmation message with draft details   |
 
 ---
 

@@ -58,7 +58,7 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 | 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft                 | ✅ Complete |
 | 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                                | ✅ Complete |
 | 5   | Approval Handler       | Handle Slack interactions: approve (+ render HTML), reject, or iterate via feedback loop | ✅ Complete |
-| 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                                     | 🔜 Next     |
+| 6   | Master Orchestrator    | Connect workflows 2-4 into single automated pipeline                                     | ✅ Complete |
 
 ---
 
@@ -359,38 +359,48 @@ docker compose exec n8n n8n list:workflow
 
 ---
 
-## 🔜 To Build: Workflow 6 — Master Orchestrator
+## Completed: Workflow 6 — Master Orchestrator
 
-**Purpose:** Connect Workflows 2-5 into a single automated pipeline using "Execute Workflow" nodes.
+**Documentation:** `project-documentation/workflows/master-orchestrator.md`
+
+**Purpose:** Connect Workflows 2-4 into a single automated pipeline using "Execute Sub-workflow" nodes.
+
+**What it does:**
+
+- Accepts campaign parameters (theme, platform, vehicle) via manual trigger or form submission
+- Executes Workflow 2 (Content Assembler) with those parameters
+- Passes content package to Workflow 3 (AI Content Generator)
+- Passes draft path to Workflow 4 (Slack Notifier)
+- Logs pipeline completion
+
+**Note:** Workflow 5 (Approval Handler) runs independently via Slack webhook — not called by the orchestrator.
 
 **Architecture:**
 
 ```
-[Schedule Trigger or Manual]
+[Manual Trigger / Form Submission]
        │
        ▼
-[Set Campaign Parameters]
+[Merge Trigger Inputs]
        │
        ▼
-[Execute Workflow: Content Assembler]
+[Call: Content Assembler (WF2)]
        │
        ▼
-[Execute Workflow: AI Content Generator]
+[Call: AI Content Generator (WF3)]
        │
        ▼
-[Execute Workflow: Slack Notifier]
+[Call: Slack Notifier (WF4)]
        │
        ▼
-[Log: Pipeline Complete — Awaiting Human Review]
+[Log: Pipeline Complete]
 ```
 
-**Benefits of this approach:**
+**Key implementation details:**
 
-- Each workflow remains testable in isolation
-- Easy to modify individual steps without affecting others
-- Clear separation of concerns
-- Simplified debugging
-- Can run sub-workflows independently for testing
+- Workflows 2, 3, and 4 were updated with dual-trigger patterns (Manual Trigger + "When Executed by Another Workflow") to support both standalone testing and orchestrator calls
+- Data flows automatically between sub-workflows via the Execute Sub-workflow nodes
+- Each sub-workflow remains independently testable
 
 ---
 
@@ -480,4 +490,10 @@ After all workflows are complete:
 
 ---
 
-**Next step:** Build Workflow 6 — Master Orchestrator (connect Workflows 2-5 into automated pipeline)
+**Status:** All core workflows complete. POC prototype fully functional.
+
+**Remaining post-completion tasks:**
+
+1. **Update Workflow 2** — Include `image.url` in content package output
+2. **Update Workflow 4** — Remove hardcoded URL lookup map from "Parse Draft" node
+3. **Export all workflows** — Save to `n8n/demo-data/workflows/` for version control

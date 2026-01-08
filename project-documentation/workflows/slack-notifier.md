@@ -31,13 +31,11 @@ The workflow also outputs the Slack message timestamp (`ts`) and channel ID, whi
 ## Workflow Structure
 
 ```
-[Manual Trigger]
-       │
-       ▼
-[Set Test Data] ──► (provides draft file path)
-       │
-       ▼
-[Read Draft File] → [Extract Draft JSON] → [Parse Draft]
+[When Executed by Another Workflow] ───┐
+                                        ├─► [Merge Draft Inputs]
+[Manual Trigger] → [Set Test Draft Path] ─┘           │
+                                                       ▼
+                                              [Read Draft File] → [Extract Draft JSON] → [Parse Draft]
        │
        ▼
 [Build Slack Blocks]
@@ -51,16 +49,18 @@ The workflow also outputs the Slack message timestamp (`ts`) and channel ID, whi
 
 ### Node Summary
 
-| Node                | Type              | Purpose                                              |
-| ------------------- | ----------------- | ---------------------------------------------------- |
-| Manual Trigger      | Trigger           | Starts workflow                                      |
-| Set Test Data       | Set               | Injects test draft file path                         |
-| Read Draft File     | Read/Write Files  | Loads draft JSON as binary                           |
-| Extract Draft JSON  | Extract From File | Converts binary to string                            |
-| Parse Draft         | Code              | Parses JSON, extracts fields, looks up image URL     |
-| Build Slack Blocks  | Code              | Constructs Slack Block Kit JSON with image & buttons |
-| Send to Slack       | HTTP Request      | POSTs to Slack chat.postMessage API                  |
-| Output Confirmation | Set               | Captures message ts, channel, and status             |
+| Node                              | Type                | Purpose                                              |
+| --------------------------------- | ------------------- | ---------------------------------------------------- |
+| When Executed by Another Workflow | Trigger             | Receives draft info from Master Orchestrator         |
+| Manual Trigger                    | Trigger             | Starts workflow for standalone testing               |
+| Set Test Draft Path               | Set                 | Injects test draft file path                         |
+| Merge Draft Inputs                | Merge (Append mode) | Combines whichever trigger fires                     |
+| Read Draft File                   | Read/Write Files    | Loads draft JSON as binary                           |
+| Extract Draft JSON                | Extract From File   | Converts binary to string                            |
+| Parse Draft                       | Code                | Parses JSON, extracts fields, looks up image URL     |
+| Build Slack Blocks                | Code                | Constructs Slack Block Kit JSON with image & buttons |
+| Send to Slack                     | HTTP Request        | POSTs to Slack chat.postMessage API                  |
+| Output Confirmation               | Set                 | Captures message ts, channel, and status             |
 
 ---
 

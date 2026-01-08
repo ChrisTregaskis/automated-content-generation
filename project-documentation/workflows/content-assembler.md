@@ -33,10 +33,12 @@ This package is passed to Workflow 3 (AI Content Generator) where Claude generat
 ## Workflow Structure
 
 ```
-[Manual Trigger]
-       │
-       ▼
-[Set Input Parameters]
+[When Executed by Another Workflow] ──┐
+                                      ├─► [Merge Trigger Inputs]
+[Manual Trigger] → [Set Test Parameters] ─┘           │
+       │                                               │
+       ▼                                               ▼
+[On Form Submission] ─────────────────────────────────►│
        │
        ├──► [Read Images Manifest] → [Extract Image Manifest JSON]    ─┐
        ├──► [Read Headlines] → [Extract Headlines JSON]               ─┤
@@ -51,22 +53,25 @@ This package is passed to Workflow 3 (AI Content Generator) where Claude generat
 
 ### Node Summary
 
-| Node                        | Type                     | Purpose                                         |
-| --------------------------- | ------------------------ | ----------------------------------------------- |
-| Manual Trigger              | Trigger                  | Starts workflow                                 |
-| Set Input Parameters        | Set                      | Defines theme/platform/vehicle                  |
-| Read Images Manifest        | Read/Write Files         | Loads image metadata file                       |
-| Extract Image Manifest JSON | Extract From JSON        | Parses JSON from file data                      |
-| Read Headlines              | Read/Write Files         | Loads headlines file                            |
-| Extract Headlines JSON      | Extract From JSON        | Parses JSON from file data                      |
-| Read Body Copy              | Read/Write Files         | Loads body copy file                            |
-| Extract Body Copy JSON      | Extract From JSON        | Parses JSON from file data                      |
-| Read CTAs                   | Read/Write Files         | Loads CTAs file                                 |
-| Extract CTAs JSON           | Extract From JSON        | Parses JSON from file data                      |
-| Merge Assets                | Merge (4 inputs, append) | Combines all asset streams                      |
-| Read Platform Template      | Read/Write Files         | Loads platform-specific template (dynamic path) |
-| Extract Template JSON       | Extract From JSON        | Parses JSON from file data                      |
-| Assemble Content Package    | Code                     | Filters, selects, validates, builds output      |
+| Node                              | Type                     | Purpose                                         |
+| --------------------------------- | ------------------------ | ----------------------------------------------- |
+| When Executed by Another Workflow | Trigger                  | Receives parameters from Master Orchestrator    |
+| Manual Trigger                    | Trigger                  | Starts workflow for standalone testing          |
+| On Form Submission                | Trigger                  | Allows testing with different parameter combos  |
+| Set Test Parameters               | Set                      | Provides default test parameters                |
+| Merge Trigger Inputs              | Merge (Append mode)      | Combines whichever trigger fires                |
+| Read Images Manifest              | Read/Write Files         | Loads image metadata file                       |
+| Extract Image Manifest JSON       | Extract From JSON        | Parses JSON from file data                      |
+| Read Headlines                    | Read/Write Files         | Loads headlines file                            |
+| Extract Headlines JSON            | Extract From JSON        | Parses JSON from file data                      |
+| Read Body Copy                    | Read/Write Files         | Loads body copy file                            |
+| Extract Body Copy JSON            | Extract From JSON        | Parses JSON from file data                      |
+| Read CTAs                         | Read/Write Files         | Loads CTAs file                                 |
+| Extract CTAs JSON                 | Extract From JSON        | Parses JSON from file data                      |
+| Merge Assets                      | Merge (4 inputs, append) | Combines all asset streams                      |
+| Read Platform Template            | Read/Write Files         | Loads platform-specific template (dynamic path) |
+| Extract Template JSON             | Extract From JSON        | Parses JSON from file data                      |
+| Assemble Content Package          | Code                     | Filters, selects, validates, builds output      |
 
 ---
 
