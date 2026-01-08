@@ -1,235 +1,212 @@
-# Self-hosted AI starter kit
+# Marketing Content Automation POC
 
-**Self-hosted AI Starter Kit** is an open-source Docker Compose template designed to swiftly initialize a comprehensive local AI and low-code development environment.
+Automated marketing content generation using n8n workflows with human-in-the-loop approval via Slack. Built as a proof-of-concept using Bentley Motors as an example for their strong brand.
 
-![n8n.io - Screenshot](https://raw.githubusercontent.com/n8n-io/self-hosted-ai-starter-kit/main/assets/n8n-demo.gif)
+**Status:** POC Complete
 
-Curated by <https://github.com/n8n-io>, it combines the self-hosted n8n
-platform with a curated list of compatible AI products and components to
-quickly get started with building self-hosted AI workflows.
+## What It Does
 
-> [!TIP]
-> [Read the announcement](https://blog.n8n.io/self-hosted-ai/)
+1. **Assembles context** from marketing assets (images, copy examples, brand guidelines)
+2. **Generates original content** via Claude API based on campaign parameters
+3. **Posts to Slack** for human review with Approve / Reject / Request Changes buttons
+4. **Handles feedback loops** — rejected content can be revised with specific feedback
+5. **Renders HTML previews** of approved content for each social platform
 
-### What’s included
+See [architecture.md](project-documentation/architecture.md) for detailed system design and data flows.
 
-✅ [**Self-hosted n8n**](https://n8n.io/) - Low-code platform with over 400
-integrations and advanced AI components
+## Technical Stack
 
-✅ [**Ollama**](https://ollama.com/) - Cross-platform LLM platform to install
-and run the latest local LLMs
+| Component             | Purpose                 | Access                |
+| --------------------- | ----------------------- | --------------------- |
+| **n8n**               | Workflow automation     | http://localhost:5678 |
+| **PostgreSQL**        | n8n data persistence    | Port 5432             |
+| **Qdrant**            | Vector store (not used) | http://localhost:6333 |
+| **Claude API**        | Content generation      | Via Anthropic API     |
+| **Slack**             | Human review interface  | Prototypes workspace  |
+| **Cloudflare Tunnel** | Webhook URL for Slack   | Via cloudflared       |
 
-✅ [**Qdrant**](https://qdrant.tech/) - Open-source, high performance vector
-store with an comprehensive API
+---
 
-✅ [**PostgreSQL**](https://www.postgresql.org/) -  Workhorse of the Data
-Engineering world, handles large amounts of data safely.
+## Setup Instructions
 
-### What you can build
+### Prerequisites
 
-⭐️ **AI Agents** for scheduling appointments
+- Docker Desktop installed and running
+- Anthropic API key ([console.anthropic.com](https://console.anthropic.com/))
+- Cloudflare CLI (`cloudflared`) for webhook tunnelling
+- Access to the "Prototypes" Slack workspace (ask the team lead)
 
-⭐️ **Summarize Company PDFs** securely without data leaks
-
-⭐️ **Smarter Slack Bots** for enhanced company communications and IT operations
-
-⭐️ **Private Financial Document Analysis** at minimal cost
-
-## Installation
-
-### Cloning the Repository
-
-```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
-cp .env.example .env # you should update secrets and passwords inside
-```
-
-### Running n8n using Docker Compose
-
-#### For Nvidia GPU users
+### 1. Clone and Configure Environment
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
-cp .env.example .env # you should update secrets and passwords inside
-docker compose --profile gpu-nvidia up
+git clone <repo-url>
+cd automated-content-generation
+cp .env.example .env
 ```
 
-> [!NOTE]
-> If you have not used your Nvidia GPU with Docker before, please follow the
-> [Ollama Docker instructions](https://github.com/ollama/ollama/blob/main/docs/docker.md).
-
-### For AMD GPU users on Linux
+Generate secrets and update `.env`:
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
-cp .env.example .env # you should update secrets and passwords inside
-docker compose --profile gpu-amd up
+# Generate two secure keys
+openssl rand -hex 32  # Use for N8N_ENCRYPTION_KEY
+openssl rand -hex 32  # Use for N8N_USER_MANAGEMENT_JWT_SECRET
 ```
 
-#### For Mac / Apple Silicon users
+Required `.env` values:
 
-If you’re using a Mac with an M1 or newer processor, you can't expose your GPU
-to the Docker instance, unfortunately. There are two options in this case:
+- `POSTGRES_USER` / `POSTGRES_PASSWORD` / `POSTGRES_DB`
+- `N8N_ENCRYPTION_KEY`
+- `N8N_USER_MANAGEMENT_JWT_SECRET`
 
-1. Run the starter kit fully on CPU, like in the section "For everyone else"
-   below
-2. Run Ollama on your Mac for faster inference, and connect to that from the
-   n8n instance
-
-If you want to run Ollama on your mac, check the
-[Ollama homepage](https://ollama.com/)
-for installation instructions, and run the starter kit as follows:
+### 2. Start the Docker Stack
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
-cp .env.example .env # you should update secrets and passwords inside
-docker compose up
+docker compose up -d
 ```
 
-##### For Mac users running OLLAMA locally
-
-If you're running OLLAMA locally on your Mac (not in Docker), you need to modify the OLLAMA_HOST environment variable
-
-1. Set OLLAMA_HOST to `host.docker.internal:11434` in your .env file. 
-2. Additionally, after you see "Editor is now accessible via: <http://localhost:5678/>":
-
-    1. Head to <http://localhost:5678/home/credentials>
-    2. Click on "Local Ollama service"
-    3. Change the base URL to "http://host.docker.internal:11434/"
-
-#### For everyone else
+Verify services are running:
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
-cp .env.example .env # you should update secrets and passwords inside
-docker compose --profile cpu up
+docker compose ps
 ```
 
-## ⚡️ Quick start and usage
+You should see `n8n`, `postgres`, and `qdrant` containers running.
 
-The core of the Self-hosted AI Starter Kit is a Docker Compose file, pre-configured with network and storage settings, minimizing the need for additional installations.
-After completing the installation steps above, simply follow the steps below to get started.
+### 3. Access n8n
 
-1. Open <http://localhost:5678/> in your browser to set up n8n. You’ll only
-   have to do this once.
-2. Open the included workflow:
-   <http://localhost:5678/workflow/srOnR8PAY3u4RSwb>
-3. Click the **Chat** button at the bottom of the canvas, to start running the workflow.
-4. If this is the first time you’re running the workflow, you may need to wait
-   until Ollama finishes downloading Llama3.2. You can inspect the docker
-   console logs to check on the progress.
+Open http://localhost:5678 and create your owner account (first time only).
 
-To open n8n at any time, visit <http://localhost:5678/> in your browser.
+### 4. Add Credentials in n8n
 
-With your n8n instance, you’ll have access to over 400 integrations and a
-suite of basic and advanced AI nodes such as
-[AI Agent](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent/),
-[Text classifier](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.text-classifier/),
-and [Information Extractor](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.information-extractor/)
-nodes. To keep everything local, just remember to use the Ollama node for your
-language model and Qdrant as your vector store.
+Go to **Settings** > **Credentials** and add:
 
-> [!NOTE]
-> This starter kit is designed to help you get started with self-hosted AI
-> workflows. While it’s not fully optimized for production environments, it
-> combines robust components that work well together for proof-of-concept
-> projects. You can customize it to meet your specific needs
+| Credential Type | Name (suggested)  | Required Values                  |
+| --------------- | ----------------- | -------------------------------- |
+| **Anthropic**   | Anthropic API     | Your API key                     |
+| **Slack API**   | Slack Bot Token   | Bot token (`xoxb-...`)           |
+| **Header Auth** | Slack Header Auth | `Authorization: Bearer xoxb-...` |
 
-## Upgrading
+### 5. Import Workflows
 
-* ### For Nvidia GPU setups:
+Workflows are stored in `n8n/demo-data/workflows/`. Import them via:
 
 ```bash
-docker compose --profile gpu-nvidia pull
-docker compose create && docker compose --profile gpu-nvidia up
+# List available workflows
+ls n8n/demo-data/workflows/
+
+# Import via n8n CLI (from inside container)
+docker compose exec n8n n8n import:workflow --input=/demo-data/workflows/<filename>.json
 ```
 
-* ### For Mac / Apple Silicon users
+Or manually import via the n8n UI: **Workflows** > **Import from File**.
+
+### 6. Start Cloudflare Tunnel (Required for Slack Webhooks)
 
 ```bash
-docker compose pull
-docker compose create && docker compose up
+cloudflared tunnel --url http://localhost:5678
 ```
 
-* ### For Non-GPU setups:
+Copy the generated URL (e.g., `https://random-words.trycloudflare.com`).
+
+**Update n8n webhook URL:**
+
+1. Go to **Settings** > **n8n instance**
+2. Set **Webhook URL** to your tunnel URL
+
+**Update Slack app interactivity URL:**
+
+1. Go to [api.slack.com/apps](https://api.slack.com/apps) > Your app > **Interactivity & Shortcuts**
+2. Set Request URL to: `<tunnel-url>/webhook/approval-handler`
+
+### 7. Test the Pipeline
+
+1. Open **Workflow 6: Master Orchestrator** in n8n
+2. Click **Test Workflow**
+3. Select campaign parameters (theme, platform, vehicle)
+4. Check `#content-review` in Slack for the review request
+5. Click Approve/Reject/Request Changes to test the approval flow
+
+---
+
+## Project Structure
+
+```
+├── shared/                          # Mounted to /data/shared/ in n8n
+│   ├── marketing-assets/            # Source assets (images, copy, templates)
+│   ├── rendered-templates/          # HTML mockup templates
+│   └── output/                      # Generated content
+│       ├── drafts/                  # Awaiting review
+│       ├── approved/                # Approval records
+│       ├── rejected/                # Rejection records
+│       └── rendered-approved/       # HTML previews
+├── project-documentation/           # Detailed workflow documentation
+├── internal-personal-notes/         # Working notes and learnings
+└── n8n/demo-data/workflows/         # Exported workflow JSON files
+```
+
+---
+
+## Workflows Overview
+
+| #   | Workflow               | Purpose                                        |
+| --- | ---------------------- | ---------------------------------------------- |
+| 1   | Asset Inventory Reader | Utility for exploring assets (not in pipeline) |
+| 2   | Content Assembler      | Filter assets, build content package           |
+| 3   | AI Content Generator   | Generate content via Claude, save draft        |
+| 4   | Slack Notifier         | Post review request to Slack                   |
+| 5   | Approval Handler       | Process approve/reject/change via webhook      |
+| 6   | Master Orchestrator    | Orchestrate WF2 → WF3 → WF4 pipeline           |
+
+See [project-documentation/workflows/](project-documentation/workflows/) for detailed documentation on each workflow.
+
+---
+
+## Common Commands
 
 ```bash
-docker compose --profile cpu pull
-docker compose create && docker compose --profile cpu up
+# Start/stop stack
+docker compose up -d
+docker compose down
+
+# View logs
+docker compose logs -f n8n
+
+# Restart n8n after config changes
+docker compose restart n8n
+
+# Export workflows for version control
+./scripts/export-n8n.sh
 ```
 
-## 👓 Recommended reading
+---
 
-n8n is full of useful content for getting started quickly with its AI concepts
-and nodes. If you run into an issue, go to [support](#support).
+## Onboarding Checklist
 
-- [AI agents for developers: from theory to practice with n8n](https://blog.n8n.io/ai-agents/)
-- [Tutorial: Build an AI workflow in n8n](https://docs.n8n.io/advanced-ai/intro-tutorial/)
-- [Langchain Concepts in n8n](https://docs.n8n.io/advanced-ai/langchain/langchain-n8n/)
-- [Demonstration of key differences between agents and chains](https://docs.n8n.io/advanced-ai/examples/agent-chain-comparison/)
-- [What are vector databases?](https://docs.n8n.io/advanced-ai/examples/understand-vector-databases/)
+- [ ] Get added to "Prototypes" Slack workspace
+- [ ] Get added to `#content-review` channel
+- [ ] Obtain Anthropic API key
+- [ ] Clone repo and configure `.env`
+- [ ] Start Docker stack
+- [ ] Add credentials in n8n
+- [ ] Import workflows
+- [ ] Start Cloudflare tunnel
+- [ ] Update Slack app interactivity URL (or confirm it's pointing to your tunnel)
+- [ ] Run test workflow
 
-## 🎥 Video walkthrough
+---
 
-- [Installing and using Local AI for n8n](https://www.youtube.com/watch?v=xz_X2N-hPg0)
+## Documentation
 
-## 🛍️ More AI templates
+- [Architecture](project-documentation/architecture.md) — System design and data flows
+- [Working Notes](internal-personal-notes/general-working-notes.md) — Detailed implementation notes and troubleshooting
+- [Workflow Documentation](project-documentation/workflows/) — Per-workflow guides
 
-For more AI workflow ideas, visit the [**official n8n AI template
-gallery**](https://n8n.io/workflows/categories/ai/). From each workflow,
-select the **Use workflow** button to automatically import the workflow into
-your local n8n instance.
+---
 
-### Learn AI key concepts
+## Notes for New Developers
 
-- [AI Agent Chat](https://n8n.io/workflows/1954-ai-agent-chat/)
-- [AI chat with any data source (using the n8n workflow too)](https://n8n.io/workflows/2026-ai-chat-with-any-data-source-using-the-n8n-workflow-tool/)
-- [Chat with OpenAI Assistant (by adding a memory)](https://n8n.io/workflows/2098-chat-with-openai-assistant-by-adding-a-memory/)
-- [Use an open-source LLM (via Hugging Face)](https://n8n.io/workflows/1980-use-an-open-source-llm-via-huggingface/)
-- [Chat with PDF docs using AI (quoting sources)](https://n8n.io/workflows/2165-chat-with-pdf-docs-using-ai-quoting-sources/)
-- [AI agent that can scrape webpages](https://n8n.io/workflows/2006-ai-agent-that-can-scrape-webpages/)
+**Slack webhook configuration:** Each developer running locally needs their own Cloudflare tunnel URL configured in the Slack app's interactivity settings. Coordinate with the team when testing webhook flows.
 
-### Local AI templates
+**Quick tunnels are ephemeral:** The `cloudflared tunnel` command generates a new URL each session. You'll need to update the Slack interactivity URL each time you restart the tunnel.
 
-- [Tax Code Assistant](https://n8n.io/workflows/2341-build-a-tax-code-assistant-with-qdrant-mistralai-and-openai/)
-- [Breakdown Documents into Study Notes with MistralAI and Qdrant](https://n8n.io/workflows/2339-breakdown-documents-into-study-notes-using-templating-mistralai-and-qdrant/)
-- [Financial Documents Assistant using Qdrant and](https://n8n.io/workflows/2335-build-a-financial-documents-assistant-using-qdrant-and-mistralai/) [Mistral.ai](http://mistral.ai/)
-- [Recipe Recommendations with Qdrant and Mistral](https://n8n.io/workflows/2333-recipe-recommendations-with-qdrant-and-mistral/)
-
-## Tips & tricks
-
-### Accessing local files
-
-The self-hosted AI starter kit will create a shared folder (by default,
-located in the same directory) which is mounted to the n8n container and
-allows n8n to access files on disk. This folder within the n8n container is
-located at `/data/shared` -- this is the path you’ll need to use in nodes that
-interact with the local filesystem.
-
-**Nodes that interact with the local filesystem**
-
-- [Read/Write Files from Disk](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.filesreadwrite/)
-- [Local File Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.localfiletrigger/)
-- [Execute Command](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executecommand/)
-
-## 📜 License
-
-This project is licensed under the Apache License 2.0 - see the
-[LICENSE](LICENSE) file for details.
-
-## 💬 Support
-
-Join the conversation in the [n8n Forum](https://community.n8n.io/), where you
-can:
-
-- **Share Your Work**: Show off what you’ve built with n8n and inspire others
-  in the community.
-- **Ask Questions**: Whether you’re just getting started or you’re a seasoned
-  pro, the community and our team are ready to support with any challenges.
-- **Propose Ideas**: Have an idea for a feature or improvement? Let us know!
-  We’re always eager to hear what you’d like to see next.
+**Workflow testing:** Each workflow (2, 3, 4) has a dual-trigger pattern — you can test them standalone via Manual Trigger, or run the full pipeline via Workflow 6.
