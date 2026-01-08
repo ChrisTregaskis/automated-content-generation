@@ -2,4 +2,7 @@
 .DS_Store
 internal-personal-notes/prompts
 internal-personal-notes/plans
-shared/output
+shared/output/approved/*.json
+shared/output/drafts/*.json
+shared/output/rejected/*.json
+shared/output/rendered-approved/*.html

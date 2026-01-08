@@ -1,4 +1,4 @@
-# Workflow 5A: Approval Handler
+# Workflow 5: Approval Handler
 
 ## Overview
 
@@ -18,7 +18,7 @@ The Approval Handler workflow receives Slack interactions (button clicks and mod
 | ----------------------------------- | ------------------------------ | ---------------------------------------------------------------- |
 | `block_actions` → `reject_content`  | User clicks ❌ Reject          | [click-reject-flow.md](./click-reject-flow.md)                   |
 | `block_actions` → `request_changes` | User clicks ✏️ Request Changes | [click-request-change-flow.md](./click-request-change-flow.md)   |
-| `block_actions` → `approve_content` | User clicks ✅ Approve         | Phase 5B (placeholder)                                           |
+| `block_actions` → `approve_content` | User clicks ✅ Approve         | [click-approve-flow.md](./click-approve-flow.md)                 |
 | `view_submission`                   | User submits feedback modal    | [submit-change-request-flow.md](./submit-change-request-flow.md) |
 
 ---
@@ -41,11 +41,11 @@ The Approval Handler workflow receives Slack interactions (button clicks and mod
        │                           │
        │    ┌──────────────────────┼──────────────────────┐
        │    ▼                      ▼                      ▼
-       │ [Approve              [Reject                [Request Changes
-       │  Placeholder]          Flow]                  Flow]
-       │                          │                      │
-       │                    See: click-           See: click-request-
-       │                    reject-flow.md        change-flow.md
+       │ [Approve               [Reject                [Request Changes
+       │  Flow]                  Flow]                  Flow]
+       │    │                      │                      │
+       │ See: click-         See: click-           See: click-request-
+       │ approve-flow.md     reject-flow.md        change-flow.md
        │
        └──► Modal Submit ──► [Submit Change Request Flow]
                                    │
@@ -136,6 +136,9 @@ Switch node for button clicks:
 | ----------------- | ------------------------------------------------------------------ |
 | Draft Files       | `/data/shared/output/drafts/*.json`                                |
 | Rejection Records | `/data/shared/output/rejected/*.json`                              |
+| Approval Records  | `/data/shared/output/approved/*.json`                              |
+| HTML Templates    | `/data/shared/rendered-templates/*.html`                           |
+| Rendered Previews | `/data/shared/output/rendered-approved/*.html`                     |
 | Brand Guidelines  | `/data/shared/marketing-assets/brand-guidelines/voice-and-tone.md` |
 
 ---
@@ -178,6 +181,14 @@ Slack provides a `response_url` with button interactions that allows updating th
 4. Verify: New message posted with revised content
 5. Verify: New draft file created with `_v2` suffix
 
+### Test Approve Flow
+
+1. Run Workflow 4 to post content
+2. Click ✅ Approve in Slack
+3. Verify: Original message replaced with approval confirmation
+4. Verify: Approval record created in `output/approved/`
+5. Verify: Rendered HTML created in `output/rendered-approved/`
+
 ---
 
 ## Troubleshooting
@@ -200,11 +211,24 @@ Slack provides a `response_url` with button interactions that allows updating th
 - May need to handle different response formats
 - Verify JSON is valid before parsing
 
+### HTML Template Not Rendering
+
+- Check template file exists at `/data/shared/rendered-templates/{platform}-post.html`
+- Verify "Extract Template" Code node is converting binary to string correctly
+- Check placeholder names match between Build Render Context and template
+
+### Image URL Not Resolving
+
+- Draft files contain local paths (e.g., `products/supersports-detail.jpg`)
+- Build Render Context node contains a lookup map for public URLs
+- If image shows broken, check the lookup map has the correct path → URL mapping
+
 ---
 
 ## Related Documentation
 
 - [Workflow 4: Slack Notifier](../slack-notifier.md) — Posts content for review
+- [click-approve-flow.md](./click-approve-flow.md) — Approve button handling + HTML rendering
 - [click-reject-flow.md](./click-reject-flow.md) — Reject button handling
 - [click-request-change-flow.md](./click-request-change-flow.md) — Request Changes button handling
 - [submit-change-request-flow.md](./submit-change-request-flow.md) — Modal submission handling

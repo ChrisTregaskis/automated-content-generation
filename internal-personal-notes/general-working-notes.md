@@ -14,7 +14,7 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 - **LLM**: Claude API via Anthropic credentials (configured in n8n)
 - **Vector Store**: Qdrant at http://localhost:6333 (available but not yet used)
 - **File System**: `./shared` on host → `/data/shared/` inside n8n container
-- **Slack**: "Prototypes" workspace with `#content-review` channel ✅
+- **Slack**: "Prototypes" workspace with `#content-review` channel
 
 ---
 
@@ -24,14 +24,14 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 ┌─────────────────┐     ┌─────────────────────┐     ┌──────────────────────┐
 │   Workflow 1    │     │    Workflow 2       │     │    Workflow 3        │
 │ Asset Inventory │     │ Content Assembler   │ ──► │ AI Content Generator │
-│   Reader ✅     │     │       ✅            │     │       ✅             │
+│   Reader        │     │                     │     │                      │
 └─────────────────┘     └─────────────────────┘     └──────────┬───────────┘
                                                                │
                                                                ▼
                         ┌─────────────────────┐     ┌──────────────────────┐
                         │    Workflow 5       │ ◄── │    Workflow 4        │
                         │ Approval Handler    │     │ Slack Notifier       │
-                        │ (webhook receiver)  │     │       ✅             │
+                        │ (webhook receiver)  │     │                      │
                         └─────────┬───────────┘     └──────────────────────┘
                                   │
                   ┌───────────────┼───────────────┐
@@ -57,10 +57,8 @@ Building a marketing content automation proof-of-concept using n8n for Bentley M
 | 2   | Content Assembler      | Filter assets by theme/vehicle/platform, select compatible combinations                  | ✅ Complete |
 | 3   | AI Content Generator   | Build prompt with examples, call Claude API, validate output, save draft                 | ✅ Complete |
 | 4   | Slack Notifier         | Post content preview to Slack with Approve/Reject buttons                                | ✅ Complete |
-| 5   | Approval Handler       | Handle Slack interactions: approve (+ render HTML), reject, or iterate via feedback loop | 🔜 Next     |
-| 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                                     | 📋 Final    |
-
-**Reference plans:** `internal-personal-notes/plans/`
+| 5   | Approval Handler       | Handle Slack interactions: approve (+ render HTML), reject, or iterate via feedback loop | ✅ Complete |
+| 6   | Master Orchestrator    | Connect workflows 2-5 into single automated pipeline                                     | 🔜 Next     |
 
 ---
 
@@ -249,7 +247,7 @@ docker compose exec n8n n8n list:workflow
 
 ---
 
-## ✅ Completed: Workflow 1 — Asset Inventory Reader
+## Completed: Workflow 1 — Asset Inventory Reader (Dummy workflow to explore n8n GUI)
 
 **Location:** `~/Prototypes/n8n/automated-content-generation/n8n/demo-data/workflows/rxB9eMban4GTHany.json`
 
@@ -262,7 +260,7 @@ docker compose exec n8n n8n list:workflow
 
 ---
 
-## ✅ Completed: Workflow 2 — Content Assembler
+## Completed: Workflow 2 — Content Assembler
 
 **Documentation:** `project-documentation/workflows/content-assembler.md`
 
@@ -295,7 +293,7 @@ docker compose exec n8n n8n list:workflow
 
 ---
 
-## ✅ Completed: Workflow 3 — AI Content Generator
+## Completed: Workflow 3 — AI Content Generator
 
 **Documentation:** `project-documentation/workflows/content-generator.md`
 
@@ -314,7 +312,7 @@ docker compose exec n8n n8n list:workflow
 
 ---
 
-## ✅ Completed: Workflow 4 — Slack Notifier
+## Completed: Workflow 4 — Slack Notifier
 
 **Documentation:** `project-documentation/workflows/slack-notifier.md`
 
@@ -339,101 +337,29 @@ docker compose exec n8n n8n list:workflow
 
 ---
 
-## 🔜 To Build: Workflow 5 — Approval Handler
+## Completed: Workflow 5 — Approval Handler
+
+**Documentation:** `project-documentation/workflows/approval-handler/approval-handler.md`
 
 **Purpose:** Receive Slack interactions (button clicks and modal submissions), process approval/rejection/feedback, render HTML previews on approval, and support iterative content refinement.
 
-**Full scope includes:**
+**What it does:**
 
-- Handle approve/reject/request-changes button clicks
-- Generate HTML platform mockups on approval
-- Capture feedback via Slack modal and re-generate content with Claude
-- Support iterative refinement until approval
+- Handles approve/reject/request-changes button clicks from Slack
+- Generates HTML platform mockups on approval (saved to `rendered-approved/`)
+- Captures feedback via Slack modal and re-generates content with Claude
+- Supports iterative refinement with versioned drafts (`_v2`, `_v3`, etc.)
 
-### Complete Architecture
+**Sub-flow documentation:**
 
-```
-[Webhook Trigger (Slack Interactive)]
-    → [Parse Slack Payload]
-    → [Respond to Slack] (immediate 200 OK)
-    → [Switch: payload type]
-        │
-        ├─► [block_actions: button click]
-        │       → [Switch: action_id]
-        │           │
-        │           ├─► [approve_content]
-        │           │       → [Move file: drafts/ → approved/]
-        │           │       → [Read HTML Template]
-        │           │       → [Render HTML Preview]
-        │           │       → [Write to rendered-approved/]
-        │           │       → [Update Slack: "✅ Approved + preview generated"]
-        │           │
-        │           ├─► [reject_content]
-        │           │       → [Move file: drafts/ → rejected/]
-        │           │       → [Update Slack: "❌ Rejected by @user"]
-        │           │
-        │           └─► [request_changes]
-        │                   → [Open Slack Modal for feedback input]
-        │                   → [Update Slack: "✏️ Awaiting feedback..."]
-        │
-        └─► [view_submission: modal submitted]
-                → [Extract feedback text + draft_id from metadata]
-                → [Load original draft from drafts/]
-                → [Build revision prompt: original + feedback]
-                → [Call Claude API for revised content]
-                → [Save as new draft version (draft_123_v2)]
-                → [Send revised content to Slack via Workflow 4 pattern]
-                → [Update original message: "Revision sent"]
-```
-
-### Approve Branch: HTML Preview Generation
-
-On approval, generate a visual HTML mockup of the content as it would appear on the target platform.
-
-**Why it matters:** Transforms abstract JSON metadata into tangible visual output. Stakeholders can immediately see "this is what it would look like" — significantly strengthens demo impact.
-
-**Template placeholders:**
-
-```
-{{headline}}, {{body_copy}}, {{cta}}, {{hashtags}}, {{image_url}}, {{draft_id}}, {{platform}}, {{generated_date}}
-```
-
-**Detailed plan:** `internal-personal-notes/plans/rendered-html-previews.md`
-
-### Request Changes Branch: Feedback Loop
-
-On "Request Changes", capture user feedback via Slack modal, re-generate content with Claude incorporating the feedback, and send the revised draft back for review.
-
-**Why it matters:** Elevates the POC from binary approve/reject to genuine human-AI collaboration. Demonstrates iterative refinement — how creative teams actually work.
-
-**Key decisions:**
-
-- Modal-based feedback (cleaner UX than thread-based)
-- Versioned drafts (`_v2`, `_v3`) rather than overwriting
-- Revision chain tracked in metadata
-
-**Detailed plan:** `internal-personal-notes/plans/slack-feedback-loop.md`
-
-### Directories Required
-
-| Resource          | Container Path                           | Purpose                        |
-| ----------------- | ---------------------------------------- | ------------------------------ |
-| Draft files       | `/data/shared/output/drafts/`            | Content awaiting review        |
-| Approved output   | `/data/shared/output/approved/`          | Approved content metadata      |
-| Rejected output   | `/data/shared/output/rejected/`          | Rejected content (archive)     |
-| HTML templates    | `/data/shared/rendered-templates/`       | Platform mockup templates      |
-| Rendered previews | `/data/shared/output/rendered-approved/` | Generated HTML visual previews |
-
-### Slack Webhook Requirements
-
-- Interactivity enabled in Slack app
-- Request URL pointing to n8n webhook (via ngrok for local dev)
-- Modal support enabled
-- Proper response within 3 seconds (acknowledge immediately, process async)
+- [click-reject-flow.md](project-documentation/workflows/approval-handler/click-reject-flow.md)
+- [click-request-change-flow.md](project-documentation/workflows/approval-handler/click-request-change-flow.md)
+- [click-approve-flow.md](project-documentation/workflows/approval-handler/click-approve-flow.md)
+- [submit-change-request-flow.md](project-documentation/workflows/approval-handler/submit-change-request-flow.md)
 
 ---
 
-## 📋 To Build: Workflow 6 — Master Orchestrator (Final Step)
+## 🔜 To Build: Workflow 6 — Master Orchestrator
 
 **Purpose:** Connect Workflows 2-5 into a single automated pipeline using "Execute Workflow" nodes.
 
@@ -488,7 +414,7 @@ shared/
 │   └── brand-guidelines/
 │       └── voice-and-tone.md           # Brand voice rules, vocabulary, do's/don'ts
 │
-├── rendered-templates/                  # 🆕 HTML mockup templates
+├── rendered-templates/                  # HTML mockup templates
 │   ├── instagram-post.html
 │   ├── linkedin-post.html
 │   └── twitter-post.html
@@ -496,7 +422,8 @@ shared/
 └── output/
     ├── drafts/                          # Generated content awaiting review
     ├── approved/                        # Approved content metadata
-    └── rendered-approved/               # 🆕 HTML visual previews
+    ├── rejected/                        # Rejection records
+    └── rendered-approved/               # HTML visual previews
 ```
 
 ---
@@ -526,7 +453,7 @@ You can read these directly from the filesystem:
 
 ---
 
-## ✅ Slack Setup (Complete)
+## Slack Setup (Complete)
 
 - [x] Create free Slack workspace — "Prototypes"
 - [x] Create Slack app at api.slack.com — "Content Review Bot"
@@ -540,17 +467,17 @@ You can read these directly from the filesystem:
 
 ---
 
-## 📝 Post-Completion Tasks
+## Post-Completion Tasks
 
 After all workflows are complete:
 
 1. **Update Workflow 2** — Include `image.url` in content package output
 2. **Update Workflow 4** — Remove hardcoded URL lookup map from "Parse Draft" node
-3. **Update Slack Interactivity URL** — Point to Workflow 5's webhook
+3. ~~**Update Slack Interactivity URL** — Point to Workflow 5's webhook~~ Done
 4. **Export all workflows** — Save to `n8n/demo-data/workflows/` for version control
 5. **Test end-to-end** — Run full pipeline from Workflow 6
-6. **Create HTML templates** — Build `shared/rendered-templates/` with platform mockups (Instagram, LinkedIn, Twitter)
+6. ~~**Create HTML templates** — Build `shared/rendered-templates/` with platform mockups~~ Done
 
 ---
 
-**Next step:** Build Workflow 5 — Approval Handler (full scope: approve + HTML render, reject, feedback loop)
+**Next step:** Build Workflow 6 — Master Orchestrator (connect Workflows 2-5 into automated pipeline)
