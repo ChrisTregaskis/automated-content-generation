@@ -477,6 +477,32 @@ You can read these directly from the filesystem:
 
 ---
 
+## Combinations To Specific Images:
+
+```json
+Combinations for specific images:
+
+{
+  "continental-driving.jpg": {
+    "theme": "performance",
+    "vehicle": "continental-gt"
+  },
+  "mulsanne-studio.jpg": {
+    "theme": "luxury",
+    "vehicle": "mulsanne"
+  },
+  "supersports-profile.jpg_supersports-rear.jpg": {
+    "theme": "performance",
+    "vehicle": "supersports"
+  },
+  "supersports-detail.jpg": {
+    "theme": "craftsmanship",
+    "vehicle": "supersports"
+  }
+}
+
+```
+
 ## Post-Completion Tasks
 
 After all workflows are complete:

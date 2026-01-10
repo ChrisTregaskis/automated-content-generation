@@ -157,8 +157,8 @@
       "shot_type": "environment",
       "orientation": "landscape",
       "style": "colour",
-      "themes": ["lifestyle", "innovation"],
-      "suggested_content_types": ["social-story", "editorial"],
+      "themes": [],
+      "suggested_content_types": [],
       "notes": "Nature environment for sustainability or journey narratives"
     },
     {
